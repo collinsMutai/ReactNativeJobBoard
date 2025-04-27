@@ -34,7 +34,7 @@ const NavBar = () => {
 
   const menuHeight = slideAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, 200],
+    outputRange: [0, 220],
   });
 
   return (
