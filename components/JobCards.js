@@ -1,54 +1,20 @@
 import React, { useState } from "react";
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
   ScrollView,
-  Image,
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Text,
 } from "react-native";
+import { useSelector } from "react-redux"; // Import useSelector to access Redux store
+import JobCard from "./JobCard"; // Import the JobCard component
 import { Ionicons } from "@expo/vector-icons"; // Import Ionicons for chevron icons
+import { useNavigation } from "@react-navigation/native"; // Import navigation hook
 
-const JobCard = () => {
-  const jobs = [
-    {
-      title: "Frontend Developer",
-      image: "https://avatar.iran.liara.run/public/6",
-      description:
-        "Work with modern frontend frameworks to build engaging user interfaces.",
-      postedDate: "Posted on April 20, 2025",
-    },
-    {
-      title: "Backend Developer",
-      image: "https://avatar.iran.liara.run/public/girl",
-      description: "Design and maintain scalable APIs and backend services.",
-      postedDate: "Posted on April 18, 2025",
-    },
-    {
-      title: "UX Designer",
-      image: "https://avatar.iran.liara.run/public/32",
-      description: "Create user-friendly designs and improve user experience.",
-      postedDate: "Posted on April 22, 2025",
-    },
-    {
-      title: "Product Manager",
-      image: "https://avatar.iran.liara.run/public/7",
-      description: "Lead cross-functional teams to deliver products.",
-      postedDate: "Posted on April 21, 2025",
-    },
-    {
-      title: "Marketing Specialist",
-      image: "https://avatar.iran.liara.run/public/5",
-      description: "Develop and execute marketing strategies.",
-      postedDate: "Posted on April 19, 2025",
-    },
-    {
-      title: "Data Scientist",
-      image: "https://avatar.iran.liara.run/public/8",
-      description: "Analyze large datasets to drive business insights.",
-      postedDate: "Posted on April 17, 2025",
-    },
-  ];
+const JobCards = () => {
+  // Fetch jobs from the Redux store using useSelector
+  const jobs = useSelector((state) => Object.values(state.job.jobs)); // Convert jobs object to an array
+  const navigation = useNavigation(); // Get the navigation hook
 
   const [currentJobIndex, setCurrentJobIndex] = useState(0);
 
@@ -70,49 +36,45 @@ const JobCard = () => {
     <View style={styles.container}>
       <Text style={styles.title}>Featured Jobs</Text>
 
-      {/* Show job cards stacked vertically */}
       <ScrollView contentContainerStyle={styles.cardContainer}>
-        {jobs.slice(currentJobIndex, currentJobIndex + 3).map((job, index) => (
-          <View key={index} style={styles.jobCard}>
-            <View style={styles.cardHeader}>
-              {/* Image on the left, Title and Description on the right */}
-              <Image source={{ uri: job.image }} style={styles.jobImage} />
-              <View style={styles.jobInfo}>
-                <Text style={styles.jobTitle}>{job.title}</Text>
-                <Text style={styles.jobDescription}>{job.description}</Text>
-              </View>
-            </View>
-            <View style={styles.cardFooter}>
-              {/* View More button on the left, Posted Date on the right */}
-              <TouchableOpacity style={styles.viewMoreButton}>
-                <Text style={styles.viewMoreText}>View More</Text>
-              </TouchableOpacity>
-              <Text style={styles.postedDate}>{job.postedDate}</Text>
-            </View>
-          </View>
-        ))}
-      </ScrollView>
+        {/* Pass sliced jobs as props to JobCard */}
+        <JobCard jobs={jobs.slice(currentJobIndex, currentJobIndex + 3)} />
 
-      {/* Navigation buttons */}
-      <View style={styles.navButtons}>
-        <TouchableOpacity onPress={handlePrev} disabled={currentJobIndex === 0}>
-          <Ionicons
-            name="chevron-back-outline"
-            size={30}
-            color={currentJobIndex === 0 ? "#ccc" : "#c6a02d"}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={handleNext}
-          disabled={currentJobIndex >= jobs.length - 3}
-        >
-          <Ionicons
-            name="chevron-forward-outline"
-            size={30}
-            color={currentJobIndex >= jobs.length - 3 ? "#ccc" : "#c6a02d"}
-          />
-        </TouchableOpacity>
-      </View>
+        {/* Navigation buttons and "View All Jobs" button placed inline */}
+        <View style={styles.navButtonsContainer}>
+          {/* "View All Jobs" Button */}
+          <TouchableOpacity
+            style={styles.viewAllButton}
+            onPress={() => navigation.navigate("Jobs")} // Navigating to Jobs screen
+          >
+            <Text style={styles.viewAllButtonText}>View All Jobs</Text>
+          </TouchableOpacity>
+
+          {/* Navigation buttons (Prev and Next) */}
+          <View style={styles.navButtons}>
+            <TouchableOpacity
+              onPress={handlePrev}
+              disabled={currentJobIndex === 0}
+            >
+              <Ionicons
+                name="chevron-back-outline"
+                size={30}
+                color={currentJobIndex === 0 ? "#ccc" : "#c6a02d"}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={handleNext}
+              disabled={currentJobIndex >= jobs.length - 3}
+            >
+              <Ionicons
+                name="chevron-forward-outline"
+                size={30}
+                color={currentJobIndex >= jobs.length - 3 ? "#ccc" : "#c6a02d"}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </ScrollView>
     </View>
   );
 };
@@ -125,77 +87,37 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "bold",
     color: "#333",
-    marginBottom: 30, // Increased margin to add more space between title and cards
+    marginBottom: 30,
     textAlign: "center",
   },
   cardContainer: {
     alignItems: "center",
-    paddingBottom: 30, // Add padding to the bottom of the cards section
+    paddingBottom: 30,
   },
-  jobCard: {
-    backgroundColor: "#f2f2f2",
-    marginBottom: 16, // Space between cards
-    padding: 16,
-    borderRadius: 8,
-    width: "90%",
-    alignItems: "center",
-    justifyContent: "center",
-    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-  },
-  cardHeader: {
-    flexDirection: "row",
-    marginBottom: 12,
-    width: "100%",
-    alignItems: "center",
-  },
-  jobImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    marginRight: 32, // Spacing between image and content
-  },
-  jobInfo: {
-    flex: 1,
-  },
-  jobTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#333",
-  },
-  jobDescription: {
-    fontSize: 14,
-    color: "#666",
-    marginTop: 4,
-  },
-  cardFooter: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "100%",
+  navButtonsContainer: {
+    flexDirection: "row", // Align items in a row
+    justifyContent: "space-between", // Space between the "View All Jobs" and the prev/next buttons
+    width: "100%", // Make sure the container takes up full width
     marginTop: 12,
-    alignItems: "center",
-  },
-  viewMoreButton: {
-    backgroundColor: "#c6a02d",
-    paddingVertical: 8,
     paddingHorizontal: 16,
+  },
+  viewAllButton: {
+    backgroundColor: "#c6a02d",
+    paddingVertical: 12,
+    paddingHorizontal: 40,
     borderRadius: 6,
     alignItems: "center",
+    justifyContent: "center",
   },
-  viewMoreText: {
+  viewAllButtonText: {
     color: "#fff",
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: "bold",
   },
-  postedDate: {
-    fontSize: 12,
-    color: "#999",
-  },
   navButtons: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginTop: 12,
+    flexDirection: "row", // Align buttons in a row (Prev and Next)
+    alignItems: "center",
   },
 });
 
-
-export default JobCard;
+export default JobCards;

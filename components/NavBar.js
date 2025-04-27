@@ -8,8 +8,10 @@ import {
   Easing,
 } from "react-native";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
 const NavBar = () => {
+  const navigation = useNavigation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [slideAnim] = useState(new Animated.Value(0));
 
@@ -37,6 +39,13 @@ const NavBar = () => {
     outputRange: [0, 220],
   });
 
+  const handleLinkPress = (route) => {
+    // Close the menu
+    toggleMenu();
+    // Navigate to the selected route
+    navigation.navigate(route);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.navBar}>
@@ -57,13 +66,22 @@ const NavBar = () => {
       </View>
 
       <Animated.View style={[styles.dropdown, { height: menuHeight }]}>
-        <TouchableOpacity style={styles.link}>
+        <TouchableOpacity
+          style={styles.link}
+          onPress={() => handleLinkPress("Home")}
+        >
           <Text style={styles.linkText}>Home</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.link}>
+        <TouchableOpacity
+          style={styles.link}
+          onPress={() => handleLinkPress("Jobs")}
+        >
           <Text style={styles.linkText}>Jobs</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.link}>
+        <TouchableOpacity
+          style={styles.link}
+          onPress={() => handleLinkPress("Profile")}
+        >
           <Text style={styles.linkText}>Profile</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.postButton}>
@@ -130,6 +148,5 @@ const styles = StyleSheet.create({
     fontFamily: "Montserrat-Regular", // Montserrat for button text
   },
 });
-
 
 export default NavBar;
