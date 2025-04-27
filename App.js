@@ -9,6 +9,8 @@ import {
 import { useFonts } from "expo-font";
 import SearchJob from "./components/SearchJob";
 import NavBar from "./components/NavBar";
+import JobCards from "./components/JobCards";
+import Footer from "./components/Footer";
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -29,6 +31,8 @@ export default function App() {
       <ScrollView contentContainerStyle={styles.container}>
         <NavBar />
         <SearchJob />
+        <JobCards />
+        <Footer />
       </ScrollView>
     </SafeAreaView>
   );
