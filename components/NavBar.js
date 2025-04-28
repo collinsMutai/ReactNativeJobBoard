@@ -1,49 +1,15 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Animated,
-  Easing,
-} from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import AuthModal from "./AuthModal"; // Import the new AuthModal component
 
 const NavBar = () => {
   const navigation = useNavigation();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [slideAnim] = useState(new Animated.Value(0));
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
-  const toggleMenu = () => {
-    if (!menuOpen) {
-      Animated.timing(slideAnim, {
-        toValue: 1,
-        duration: 300,
-        easing: Easing.out(Easing.ease),
-        useNativeDriver: false,
-      }).start();
-    } else {
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 300,
-        easing: Easing.in(Easing.ease),
-        useNativeDriver: false,
-      }).start();
-    }
-    setMenuOpen(!menuOpen);
-  };
-
-  const menuHeight = slideAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, 220],
-  });
-
-  const handleLinkPress = (route) => {
-    // Close the menu
-    toggleMenu();
-    // Navigate to the selected route
-    navigation.navigate(route);
+  const toggleModal = () => {
+    setIsModalVisible(!isModalVisible);
   };
 
   return (
@@ -51,7 +17,7 @@ const NavBar = () => {
       <View style={styles.navBar}>
         <Text style={styles.logo}>Job Board</Text>
         <View style={styles.rightIcons}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={toggleModal}>
             <Ionicons
               name="person-circle-outline"
               size={28}
@@ -59,35 +25,14 @@ const NavBar = () => {
               style={styles.icon}
             />
           </TouchableOpacity>
-          <TouchableOpacity onPress={toggleMenu}>
+          <TouchableOpacity>
             <MaterialIcons name="menu" size={28} color="black" />
           </TouchableOpacity>
         </View>
       </View>
 
-      <Animated.View style={[styles.dropdown, { height: menuHeight }]}>
-        <TouchableOpacity
-          style={styles.link}
-          onPress={() => handleLinkPress("Home")}
-        >
-          <Text style={styles.linkText}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.link}
-          onPress={() => handleLinkPress("Jobs")}
-        >
-          <Text style={styles.linkText}>Jobs</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.link}
-          onPress={() => handleLinkPress("Profile")}
-        >
-          <Text style={styles.linkText}>Profile</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.postButton}>
-          <Text style={styles.postButtonText}>Post a Job</Text>
-        </TouchableOpacity>
-      </Animated.View>
+      {/* Render the AuthModal component */}
+      <AuthModal visible={isModalVisible} onClose={toggleModal} />
     </View>
   );
 };
@@ -108,7 +53,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     color: "#c6a02d",
-    fontFamily: "OpenSans-Bold", // Open Sans for logo
   },
   rightIcons: {
     flexDirection: "row",
@@ -116,36 +60,6 @@ const styles = StyleSheet.create({
   },
   icon: {
     marginRight: 16,
-  },
-  dropdown: {
-    overflow: "hidden",
-    backgroundColor: "#f7f7f7",
-  },
-  link: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderBottomColor: "#ddd",
-    borderBottomWidth: 1,
-  },
-  linkText: {
-    fontSize: 16,
-    color: "#333",
-    fontFamily: "Montserrat-Regular", // Montserrat for links
-  },
-  postButton: {
-    backgroundColor: "#c6a02d",
-    margin: 16,
-    width: 150, // Set a specific width here
-    paddingVertical: 12,
-    borderRadius: 6,
-    alignItems: "center",
-    justifyContent: "center", // Ensure the text is centered
-  },
-  postButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-    fontFamily: "Montserrat-Regular", // Montserrat for button text
   },
 });
 
