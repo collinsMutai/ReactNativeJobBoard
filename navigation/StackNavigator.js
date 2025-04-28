@@ -17,12 +17,12 @@ const StackNavigator = () => {
       <Stack.Screen
         name="Jobs"
         component={JobListScreen}
-        options={{ title: "Job Listings" }} // Customize header title for Jobs screen
+        options={{ title: "Back" }} // Customize header title for Jobs screen
       />
       <Stack.Screen
         name="JobDetails"
         component={JobDetails}
-        options={{ title: "Job Details" }} // Customize header title for JobDetails screen
+        options={{ title: "Back" }} // Customize header title for JobDetails screen
       />
     </Stack.Navigator>
   );

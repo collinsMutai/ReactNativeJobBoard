@@ -103,6 +103,7 @@ const styles = StyleSheet.create({
   },
   cardContainer: {
     alignItems: "center",
+    paddingHorizontal: 16,
     paddingBottom: 30,
   },
   navButtonsContainer: {

@@ -24,9 +24,11 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": [
-      "expo-font",
-      "expo-asset"
-    ]
+    "plugins": ["expo-font", "expo-asset"],
+    "extra": {
+      "EMAILJS_SERVICE_ID": "service_l6dmkzh",
+      "EMAILJS_TEMPLATE_ID": "template_ixdtgrc",
+      "EMAILJS_PUBLIC_KEY": "_kLtH4wrlqg3r0j_m"
+    }
   }
 }

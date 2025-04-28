@@ -46,6 +46,8 @@ const Jobs = () => {
           return b.yearsOfExperience - a.yearsOfExperience;
         case "location":
           return a.location.localeCompare(b.location);
+        case "category":
+          return a.category.localeCompare(b.category);
         default:
           return 0;
       }
@@ -81,19 +83,21 @@ const Jobs = () => {
       {/* Filter Dropdown */}
       {filterVisible && (
         <View style={styles.dropdown}>
-          {["latest", "oldest", "experience", "location"].map((filter) => (
-            <TouchableOpacity
-              key={filter}
-              onPress={() => {
-                setSelectedFilter(filter);
-                setFilterVisible(false);
-              }}
-            >
-              <Text style={styles.dropdownItem}>
-                {filter.charAt(0).toUpperCase() + filter.slice(1)}
-              </Text>
-            </TouchableOpacity>
-          ))}
+          {["latest", "oldest", "experience", "location", "category"].map(
+            (filter) => (
+              <TouchableOpacity
+                key={filter}
+                onPress={() => {
+                  setSelectedFilter(filter);
+                  setFilterVisible(false);
+                }}
+              >
+                <Text style={styles.dropdownItem}>
+                  {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                </Text>
+              </TouchableOpacity>
+            )
+          )}
         </View>
       )}
 
@@ -119,6 +123,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+    paddingHorizontal: 16,
     backgroundColor: "#fff",
   },
   title: {

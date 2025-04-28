@@ -7,6 +7,8 @@ import {
   ScrollView,
   StyleSheet,
 } from "react-native";
+import emailjs from "emailjs-com";
+import Constants from "expo-constants";
 
 const JobDetails = () => {
   const [formData, setFormData] = useState({
@@ -20,15 +22,40 @@ const JobDetails = () => {
   };
 
   const handleSubmit = () => {
-    // Handle form submission logic (e.g., send to API or update state)
-    console.log("Form submitted with data: ", formData);
+    if (!formData.name || !formData.email || !formData.coverLetter) {
+      alert("Please fill out all fields.");
+      return;
+    }
+
+    // Access environment variables stored in app.json via expo-constants
+    const serviceID = Constants.manifest.extra.EMAILJS_SERVICE_ID;
+    const templateID = Constants.manifest.extra.EMAILJS_TEMPLATE_ID;
+    const publicKey = Constants.manifest.extra.EMAILJS_PUBLIC_KEY;
+
+    const templateParams = {
+      user_name: formData.name,
+      user_email: formData.email,
+      cover_letter: formData.coverLetter,
+    };
+
+    emailjs.send(serviceID, templateID, templateParams, publicKey).then(
+      (result) => {
+        console.log("Email sent successfully:", result.text);
+        alert("Your application has been submitted successfully!");
+        setFormData({ name: "", email: "", coverLetter: "" }); // Reset form
+      },
+      (error) => {
+        console.error("Error sending email:", error);
+        alert("Failed to submit application. Please try again.");
+      }
+    );
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Job Details</Text>
 
-      {/* Job Details Content */}
+      {/* Static Job Details Content */}
       <Text style={styles.jobTitle}>Frontend Developer</Text>
       <Text style={styles.jobDescription}>
         Work with modern frontend frameworks to build engaging user interfaces.
@@ -37,6 +64,7 @@ const JobDetails = () => {
       <Text style={styles.location}>Location: New York, NY</Text>
       <Text style={styles.postedDate}>Date Posted: 2025-04-20</Text>
 
+      {/* Key Responsibilities Section */}
       <Text style={styles.sectionTitle}>Key Responsibilities:</Text>
       <Text style={styles.bulletPoint}>
         • Develop UI components using React
@@ -44,11 +72,13 @@ const JobDetails = () => {
       <Text style={styles.bulletPoint}>• Collaborate with backend team</Text>
       <Text style={styles.bulletPoint}>• Optimize application performance</Text>
 
+      {/* Skills & Experience Section */}
       <Text style={styles.sectionTitle}>Skills & Experience:</Text>
       <Text style={styles.bulletPoint}>• Proficiency in JavaScript, React</Text>
       <Text style={styles.bulletPoint}>• Understanding of REST APIs</Text>
       <Text style={styles.bulletPoint}>• 2+ years in frontend development</Text>
 
+      {/* Perks & Benefits Section */}
       <Text style={styles.sectionTitle}>Perks & Benefits:</Text>
       <Text style={styles.bulletPoint}>• Health insurance</Text>
       <Text style={styles.bulletPoint}>• Remote work options</Text>
@@ -84,7 +114,6 @@ const JobDetails = () => {
         <Text style={styles.submitButtonText}>Submit Application</Text>
       </TouchableOpacity>
 
-      {/* Add some extra space below the form to ensure everything is visible */}
       <View style={styles.bottomSpacing}></View>
     </ScrollView>
   );
@@ -168,7 +197,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   bottomSpacing: {
-    height: 20, // Add more height if needed for extra spacing
+    height: 40,
   },
 });
 

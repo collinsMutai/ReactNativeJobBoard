@@ -1,3 +1,5 @@
+// redux/reducers/jobReducer.js
+
 import {
   ADD_JOB,
   UPDATE_JOB,
@@ -5,10 +7,11 @@ import {
   SELECT_JOB,
 } from "../actions/jobActionTypes";
 
-// Initial job array — assumed already loaded with unique IDs
+// Initial job array with category field
 const initialJobsArray = [
   {
     title: "Frontend Developer",
+    category: "Engineering",
     image: "https://avatar.iran.liara.run/public/6",
     description:
       "Work with modern frontend frameworks to build engaging user interfaces.",
@@ -34,6 +37,7 @@ const initialJobsArray = [
   },
   {
     title: "Backend Developer",
+    category: "Engineering",
     image: "https://avatar.iran.liara.run/public/girl",
     description: "Design and maintain scalable APIs and backend services.",
     postedDate: "2025-04-18",
@@ -58,6 +62,7 @@ const initialJobsArray = [
   },
   {
     title: "UX Designer",
+    category: "Design",
     image: "https://avatar.iran.liara.run/public/32",
     description: "Create user-friendly designs and improve user experience.",
     postedDate: "2025-04-22",
@@ -82,6 +87,7 @@ const initialJobsArray = [
   },
   {
     title: "Product Manager",
+    category: "Product",
     image: "https://avatar.iran.liara.run/public/7",
     description: "Lead cross-functional teams to deliver products.",
     postedDate: "2025-04-21",
@@ -106,6 +112,7 @@ const initialJobsArray = [
   },
   {
     title: "Marketing Specialist",
+    category: "Marketing",
     image: "https://avatar.iran.liara.run/public/5",
     description: "Develop and execute marketing strategies.",
     postedDate: "2025-04-19",
@@ -126,6 +133,7 @@ const initialJobsArray = [
   },
   {
     title: "Data Scientist",
+    category: "Data Science",
     image: "https://avatar.iran.liara.run/public/8",
     description: "Analyze large datasets to drive business insights.",
     postedDate: "2025-04-17",
@@ -150,7 +158,7 @@ const initialJobsArray = [
   },
 ];
 
-// Convert to object with id as key
+// Convert array to object
 const initialJobsObject = {};
 initialJobsArray.forEach((job) => {
   initialJobsObject[job.id] = job;
@@ -171,7 +179,6 @@ const jobReducer = (state = initialState, action) => {
           [action.payload.id]: action.payload,
         },
       };
-
     case UPDATE_JOB:
       return {
         ...state,
@@ -180,20 +187,17 @@ const jobReducer = (state = initialState, action) => {
           [action.payload.id]: action.payload,
         },
       };
-
     case DELETE_JOB:
       const { [action.payload]: _, ...remainingJobs } = state.jobs;
       return {
         ...state,
         jobs: remainingJobs,
       };
-
     case SELECT_JOB:
       return {
         ...state,
         selectedJob: state.jobs[action.payload] || null,
       };
-
     default:
       return state;
   }
