@@ -11,13 +11,21 @@ const JobCard = ({ jobs }) => {
             <View style={styles.jobInfo}>
               <Text style={styles.jobTitle}>{job.title}</Text>
               <Text style={styles.jobDescription}>{job.description}</Text>
+
+              {/* Align Experience and Location to the left and make italic */}
+              <Text style={styles.experience}>
+                Years of Experience: {job.yearsOfExperience}+
+              </Text>
+              <Text style={styles.location}>Location: {job.location}</Text>
             </View>
           </View>
+
           <View style={styles.cardFooter}>
             <TouchableOpacity style={styles.viewMoreButton}>
               <Text style={styles.viewMoreText}>View More</Text>
             </TouchableOpacity>
-            <Text style={styles.postedDate}>{job.postedDate}</Text>
+            {/* Make the posted date italic */}
+            <Text style={styles.postedDate}>Date Posted: {job.postedDate}</Text>
           </View>
         </View>
       ))}
@@ -34,8 +42,13 @@ const styles = StyleSheet.create({
     width: "90%",
     alignItems: "center",
     justifyContent: "center",
-    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
+
   cardHeader: {
     flexDirection: "row",
     marginBottom: 12,
@@ -61,6 +74,23 @@ const styles = StyleSheet.create({
     color: "#666",
     marginTop: 4,
   },
+
+  // Experience and Location styles inside the same view as description, with italic font style
+  experience: {
+    fontSize: 14,
+    color: "#666",
+    marginTop: 4,
+    textAlign: "left", // Align to the left
+    fontStyle: "italic", // Make it italic
+  },
+  location: {
+    fontSize: 14,
+    color: "#666",
+    marginTop: 4,
+    textAlign: "left", // Align to the left
+    fontStyle: "italic", // Make it italic
+  },
+
   cardFooter: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -80,9 +110,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "bold",
   },
+
+  // Added styling for the posted date with italic font style
   postedDate: {
     fontSize: 12,
     color: "#999",
+    marginTop: 6, // Added margin for spacing
+    textAlign: "center", // Center the date
+    fontStyle: "italic", // Make it italic
   },
 });
 

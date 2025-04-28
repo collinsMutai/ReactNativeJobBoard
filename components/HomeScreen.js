@@ -21,7 +21,11 @@ export default function HomeScreen({ navigation }) {
   });
 
   if (!fontsLoaded) {
-    return <Text>Loading...</Text>;
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <Text style={styles.loadingText}>Loading...</Text>
+      </SafeAreaView>
+    );
   }
 
   return (
@@ -44,5 +48,11 @@ const styles = StyleSheet.create({
   },
   container: {
     flexGrow: 1,
+  },
+  loadingText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginTop: "50%",
   },
 });

@@ -11,12 +11,12 @@ const StackNavigator = () => {
       <Stack.Screen
         name="Home"
         component={HomeScreen}
-        options={{ headerShown: false }}
+        options={{ headerShown: false }} // Hides the header for HomeScreen
       />
       <Stack.Screen
         name="Jobs"
         component={JobListScreen}
-        options={{ title: "Back" }}
+        options={{ title: "Job Listings" }} // Customize header title for Jobs screen
       />
     </Stack.Navigator>
   );

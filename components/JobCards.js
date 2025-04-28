@@ -13,7 +13,7 @@ import { useNavigation } from "@react-navigation/native"; // Import navigation h
 
 const JobCards = () => {
   // Fetch jobs from the Redux store using useSelector
-  const jobs = useSelector((state) => Object.values(state.job.jobs)); // Convert jobs object to an array
+  const jobs = useSelector((state) => Object.values(state.job.jobs) || []); // Ensure jobs is always an array
   const navigation = useNavigation(); // Get the navigation hook
 
   const [currentJobIndex, setCurrentJobIndex] = useState(0);
@@ -45,7 +45,7 @@ const JobCards = () => {
           {/* "View All Jobs" Button */}
           <TouchableOpacity
             style={styles.viewAllButton}
-            onPress={() => navigation.navigate("Jobs")} // Navigating to Jobs screen
+            onPress={() => navigation.navigate("Jobs")} 
           >
             <Text style={styles.viewAllButtonText}>View All Jobs</Text>
           </TouchableOpacity>
