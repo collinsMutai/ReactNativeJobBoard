@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,15 +7,24 @@ import {
   TextInput,
   TouchableOpacity,
 } from "react-native";
-import { useSelector } from "react-redux";
-import { Ionicons } from "@expo/vector-icons"; // Make sure to install expo/vector-icons or use any other icon lib
+import { useSelector, useDispatch } from "react-redux";
+import { Ionicons } from "@expo/vector-icons";
 import JobCard from "./JobCard";
+import { selectJob } from "../redux/actions/jobActions";
+import { useNavigation } from "@react-navigation/native";
 
 const Jobs = () => {
   const jobs = useSelector((state) => Object.values(state.job?.jobs || {}));
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
+
   const [searchQuery, setSearchQuery] = useState("");
   const [filterVisible, setFilterVisible] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState("latest");
+
+  useEffect(() => {
+    console.log("Fetched Jobs:", jobs);
+  }, [jobs]);
 
   const toggleFilterDropdown = () => {
     setFilterVisible(!filterVisible);
@@ -41,6 +50,11 @@ const Jobs = () => {
           return 0;
       }
     });
+
+  const handleJobSelect = (job) => {
+    dispatch(selectJob(job)); // Pass the full job object
+    navigation.navigate("JobDetails");
+  };
 
   return (
     <View style={styles.container}>
@@ -86,7 +100,13 @@ const Jobs = () => {
       {/* Job List */}
       {filteredJobs && filteredJobs.length > 0 ? (
         <ScrollView contentContainerStyle={styles.cardContainer}>
-          <JobCard jobs={filteredJobs} />
+          {filteredJobs.map((job) => (
+            <TouchableOpacity key={job.id} onPress={() => handleJobSelect(job)}>
+              <JobCard job={job} />
+
+              {/* Wrap in array since JobCard expects jobs prop */}
+            </TouchableOpacity>
+          ))}
         </ScrollView>
       ) : (
         <Text style={styles.noJobsText}>No matching jobs found.</Text>

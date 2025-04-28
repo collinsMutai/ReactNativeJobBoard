@@ -1,35 +1,49 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { useDispatch } from "react-redux";
+import { selectJob } from "../redux/actions/jobActions"; // Assuming this is the action to select the job
 
-const JobCard = ({ jobs }) => {
+const JobCard = ({ job }) => {
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
+
+  const handleViewMorePress = () => {
+    // Dispatch action to store the selected job in Redux (optional if you're using Redux)
+    dispatch(selectJob(job.id));
+
+    // Navigate to JobDetails screen
+    navigation.navigate("JobDetails");
+  };
+
+  if (!job) {
+    return null; // Prevent rendering if job is undefined
+  }
+
   return (
-    <>
-      {jobs.map((job, index) => (
-        <View key={index} style={styles.jobCard}>
-          <View style={styles.cardHeader}>
-            <Image source={{ uri: job.image }} style={styles.jobImage} />
-            <View style={styles.jobInfo}>
-              <Text style={styles.jobTitle}>{job.title}</Text>
-              <Text style={styles.jobDescription}>{job.description}</Text>
-
-              {/* Align Experience and Location to the left and make italic */}
-              <Text style={styles.experience}>
-                Years of Experience: {job.yearsOfExperience}+
-              </Text>
-              <Text style={styles.location}>Location: {job.location}</Text>
-            </View>
-          </View>
-
-          <View style={styles.cardFooter}>
-            <TouchableOpacity style={styles.viewMoreButton}>
-              <Text style={styles.viewMoreText}>View More</Text>
-            </TouchableOpacity>
-            {/* Make the posted date italic */}
-            <Text style={styles.postedDate}>Date Posted: {job.postedDate}</Text>
-          </View>
+    <View style={styles.jobCard}>
+      <View style={styles.cardHeader}>
+        <Image source={{ uri: job.image }} style={styles.jobImage} />
+        <View style={styles.jobInfo}>
+          <Text style={styles.jobTitle}>{job.title}</Text>
+          <Text style={styles.jobDescription}>{job.description}</Text>
+          <Text style={styles.experience}>
+            Years of Experience: {job.yearsOfExperience}+
+          </Text>
+          <Text style={styles.location}>Location: {job.location}</Text>
         </View>
-      ))}
-    </>
+      </View>
+
+      <View style={styles.cardFooter}>
+        <TouchableOpacity
+          style={styles.viewMoreButton}
+          onPress={handleViewMorePress}
+        >
+          <Text style={styles.viewMoreText}>View More</Text>
+        </TouchableOpacity>
+        <Text style={styles.postedDate}>Date Posted: {job.postedDate}</Text>
+      </View>
+    </View>
   );
 };
 
@@ -48,7 +62,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
   },
-
   cardHeader: {
     flexDirection: "row",
     marginBottom: 12,
@@ -74,23 +87,18 @@ const styles = StyleSheet.create({
     color: "#666",
     marginTop: 4,
   },
-
-  // Experience and Location styles inside the same view as description, with italic font style
   experience: {
     fontSize: 14,
     color: "#666",
     marginTop: 4,
-    textAlign: "left", // Align to the left
-    fontStyle: "italic", // Make it italic
+    fontStyle: "italic",
   },
   location: {
     fontSize: 14,
     color: "#666",
     marginTop: 4,
-    textAlign: "left", // Align to the left
-    fontStyle: "italic", // Make it italic
+    fontStyle: "italic",
   },
-
   cardFooter: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -110,14 +118,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "bold",
   },
-
-  // Added styling for the posted date with italic font style
   postedDate: {
     fontSize: 12,
     color: "#999",
-    marginTop: 6, // Added margin for spacing
-    textAlign: "center", // Center the date
-    fontStyle: "italic", // Make it italic
+    marginTop: 6,
+    fontStyle: "italic",
   },
 });
 

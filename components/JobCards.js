@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   ScrollView,
   View,
@@ -17,6 +17,16 @@ const JobCards = () => {
   const navigation = useNavigation(); // Get the navigation hook
 
   const [currentJobIndex, setCurrentJobIndex] = useState(0);
+
+  // Log the jobs fetched from the Redux store
+  useEffect(() => {
+    console.log("Fetched Jobs: ", jobs); // Log all the jobs whenever they change
+  }, [jobs]);
+
+  // Log the current job index
+  useEffect(() => {
+    console.log("Current Job Index: ", currentJobIndex);
+  }, [currentJobIndex]);
 
   // Handle previous button click
   const handlePrev = () => {
@@ -37,15 +47,16 @@ const JobCards = () => {
       <Text style={styles.title}>Featured Jobs</Text>
 
       <ScrollView contentContainerStyle={styles.cardContainer}>
-        {/* Pass sliced jobs as props to JobCard */}
-        <JobCard jobs={jobs.slice(currentJobIndex, currentJobIndex + 3)} />
+        {/* Render each job card individually */}
+        {jobs.slice(currentJobIndex, currentJobIndex + 3).map((job) => (
+          <JobCard key={job.id} job={job} />
+        ))}
 
-        {/* Navigation buttons and "View All Jobs" button placed inline */}
         <View style={styles.navButtonsContainer}>
           {/* "View All Jobs" Button */}
           <TouchableOpacity
             style={styles.viewAllButton}
-            onPress={() => navigation.navigate("Jobs")} 
+            onPress={() => navigation.navigate("Jobs")}
           >
             <Text style={styles.viewAllButtonText}>View All Jobs</Text>
           </TouchableOpacity>
