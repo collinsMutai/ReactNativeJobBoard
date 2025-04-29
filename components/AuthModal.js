@@ -3,32 +3,96 @@ import {
   View,
   Text,
   TextInput,
-  Button,
-  StyleSheet,
   TouchableOpacity,
+  StyleSheet,
   Modal,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons"; // For the X icon
+import { Ionicons } from "@expo/vector-icons";
+import { useDispatch } from "react-redux";
+import Toast from "react-native-toast-message";
+import {
+  loginUser,
+  registerUser,
+  resetPassword,
+} from "../redux/actions/authActions";
 
 const AuthModal = ({ visible, onClose }) => {
-  const [authMode, setAuthMode] = useState("login"); // 'login', 'register', 'reset'
+  const [authMode, setAuthMode] = useState("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const handleAuthAction = () => {
+  const dispatch = useDispatch();
+
+const handleAuthAction = async () => {
+  try {
     if (authMode === "login") {
-      console.log("Logging in with:", email, password);
+      if (!email.trim() || !password.trim()) {
+        alert("Please fill in both email and password.");
+        return;
+      }
+      await dispatch(loginUser(email, password));
+      console.log("Login successful");
+
+      // Hide the modal and show the success toast
+      onClose(); // Close the modal
+      Toast.show({
+        type: "success",
+        position: "top",
+        text1: "Login Successful!",
+        text2: "Welcome back!",
+        visibilityTime: 3000, // Toast will be visible for 3 seconds
+      });
     } else if (authMode === "register") {
+      if (!email.trim() || !password.trim() || !confirmPassword.trim()) {
+        alert("Please fill in all fields.");
+        return;
+      }
       if (password !== confirmPassword) {
         alert("Passwords do not match.");
         return;
       }
-      console.log("Registering with:", email, password);
+      await dispatch(registerUser(email, password));
+
+      // Hide the modal and show the success toast
+      onClose(); // Close the modal
+      Toast.show({
+        type: "success",
+        position: "top",
+        text1: "Registration Successful!",
+        text2: "You can now log in.",
+        visibilityTime: 3000,
+      });
     } else if (authMode === "reset") {
-      console.log("Resetting password for:", email);
+      if (!email.trim()) {
+        alert("Please enter your email.");
+        return;
+      }
+      await dispatch(resetPassword(email));
+
+      // Hide the modal and show the success toast
+      onClose(); // Close the modal
+      Toast.show({
+        type: "success",
+        position: "top",
+        text1: "Password Reset!",
+        text2: "Please check your email.",
+        visibilityTime: 3000,
+      });
     }
-  };
+  } catch (error) {
+    // Show error toast on failure
+    Toast.show({
+      type: "error",
+      position: "top",
+      text1: "Error!",
+      text2: error.message || "Something went wrong.",
+      visibilityTime: 3000,
+    });
+  }
+};
+
+
 
   const renderForm = () => {
     switch (authMode) {
@@ -48,7 +112,12 @@ const AuthModal = ({ visible, onClose }) => {
               value={password}
               onChangeText={setPassword}
             />
-            <Button title="Login" onPress={handleAuthAction} />
+            <TouchableOpacity
+              style={styles.authButton}
+              onPress={handleAuthAction}
+            >
+              <Text style={styles.authButtonText}>Login</Text>
+            </TouchableOpacity>
             <TouchableOpacity onPress={() => setAuthMode("reset")}>
               <Text style={styles.switchText}>Forgot Password?</Text>
             </TouchableOpacity>
@@ -82,7 +151,12 @@ const AuthModal = ({ visible, onClose }) => {
               value={confirmPassword}
               onChangeText={setConfirmPassword}
             />
-            <Button title="Register" onPress={handleAuthAction} />
+            <TouchableOpacity
+              style={styles.authButton}
+              onPress={handleAuthAction}
+            >
+              <Text style={styles.authButtonText}>Register</Text>
+            </TouchableOpacity>
             <TouchableOpacity onPress={() => setAuthMode("login")}>
               <Text style={styles.switchText}>
                 Already have an account? Login
@@ -99,7 +173,12 @@ const AuthModal = ({ visible, onClose }) => {
               value={email}
               onChangeText={setEmail}
             />
-            <Button title="Reset Password" onPress={handleAuthAction} />
+            <TouchableOpacity
+              style={styles.authButton}
+              onPress={handleAuthAction}
+            >
+              <Text style={styles.authButtonText}>Reset Password</Text>
+            </TouchableOpacity>
             <TouchableOpacity onPress={() => setAuthMode("login")}>
               <Text style={styles.switchText}>Back to Login</Text>
             </TouchableOpacity>
@@ -123,7 +202,6 @@ const AuthModal = ({ visible, onClose }) => {
             <Ionicons name="close-circle-outline" size={32} color="#c6a02d" />
           </TouchableOpacity>
           <View style={styles.formContainer}>
-            {/* Title placed inside the form container */}
             <Text style={styles.modalTitle}>
               {authMode === "login"
                 ? "Login"
@@ -144,8 +222,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent black background
-    position: "absolute", // Ensure the modal background is covering the full screen
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
@@ -153,24 +231,24 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     backgroundColor: "white",
-    padding: 15, // Reduced padding inside modal for more compact layout
+    padding: 15,
     borderRadius: 10,
-    width: "85%", // Increased width of modal container to 85% of screen width
-    maxWidth: 400, // Optionally limit the width to a maximum value
-    height: "70%", // Modal height covers 70% of the screen
-    justifyContent: "center", // Center the content vertically
-    alignItems: "center", // Center the content horizontally
+    width: "85%",
+    maxWidth: 400,
+    height: "50%",
+    justifyContent: "center",
+    alignItems: "center",
   },
   closeButton: {
     position: "absolute",
     top: 10,
     right: 10,
-    zIndex: 1, // Ensure the close button is on top
+    zIndex: 1,
   },
   modalTitle: {
     fontSize: 22,
     fontWeight: "bold",
-    marginBottom: 15, // Reduced margin to bring it closer to the form
+    marginBottom: 15,
     textAlign: "center",
   },
   input: {
@@ -180,18 +258,31 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginBottom: 12,
     paddingLeft: 10,
-    width: "100%", // Input width is set to 100% of modal container width
+    width: 250,
   },
   switchText: {
     textAlign: "center",
-    color: "#007BFF",
+    color: "#c6a02d",
     marginTop: 10,
   },
   formContainer: {
-    alignItems: "center", // Center form inputs horizontally
-    justifyContent: "center", // Center form inputs vertically
-    flex: 1, // Use all available space
-    width: "100%", // Ensure the form takes up full width of modal container
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
+    width: "100%",
+  },
+  authButton: {
+    backgroundColor: "#c6a02d",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    alignItems: "center",
+    marginTop: 10,
+  },
+  authButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 

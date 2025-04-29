@@ -1,5 +1,14 @@
 // redux/actions/jobActions.js
-import { ADD_JOB, UPDATE_JOB, DELETE_JOB, SELECT_JOB } from "./jobActionTypes";
+import {
+  ADD_JOB,
+  UPDATE_JOB,
+  DELETE_JOB,
+  SELECT_JOB,
+  LOGIN_USER,
+  LOGOUT_USER,
+  REGISTER_USER,
+  RESET_PASSWORD,
+} from "./jobActionTypes";
 
 // Add a new job to the store
 export const addJob = (newJob) => ({
@@ -24,3 +33,5 @@ export const selectJob = (jobId) => ({
   type: SELECT_JOB,
   payload: jobId,
 });
+
+

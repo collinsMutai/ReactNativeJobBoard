@@ -1,8 +1,9 @@
 import React from "react";
 import { Provider } from "react-redux";
 import { NavigationContainer } from "@react-navigation/native";
-import StackNavigator from "./navigation/StackNavigator"; // Ensure the import path is correct
-import store from "./redux/store"; // Import the Redux store
+import StackNavigator from "./navigation/StackNavigator";
+import store from "./redux/store";
+import Toast from "react-native-toast-message";
 
 export default function App() {
   return (
@@ -10,6 +11,7 @@ export default function App() {
       <NavigationContainer>
         <StackNavigator />
       </NavigationContainer>
+      <Toast /> {/* <-- This is required to display toast messages */}
     </Provider>
   );
 }
