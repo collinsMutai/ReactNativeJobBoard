@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
-
 import {
   View,
   Text,
@@ -8,6 +7,9 @@ import {
   TouchableOpacity,
   StyleSheet,
   Modal,
+  KeyboardAvoidingView,
+  ScrollView,
+  Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useDispatch } from "react-redux";
@@ -25,7 +27,7 @@ const AuthModal = ({ visible, onClose }) => {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const dispatch = useDispatch();
-  const navigation = useNavigation(); // ⬅ Add this
+  const navigation = useNavigation();
 
   const handleAuthAction = async () => {
     try {
@@ -35,16 +37,13 @@ const AuthModal = ({ visible, onClose }) => {
           return;
         }
         await dispatch(loginUser(email, password));
-        console.log("Login successful");
-
-        // Hide the modal and show the success toast
-        onClose(); // Close the modal
+        onClose();
         Toast.show({
           type: "success",
           position: "top",
           text1: "Login Successful!",
           text2: "Welcome back!",
-          visibilityTime: 3000, // Toast will be visible for 3 seconds
+          visibilityTime: 3000,
         });
         if (email.toLowerCase() === "admin@gmail.com") {
           navigation.navigate("Admin");
@@ -59,9 +58,7 @@ const AuthModal = ({ visible, onClose }) => {
           return;
         }
         await dispatch(registerUser(email, password));
-
-        // Hide the modal and show the success toast
-        onClose(); // Close the modal
+        onClose();
         Toast.show({
           type: "success",
           position: "top",
@@ -75,9 +72,7 @@ const AuthModal = ({ visible, onClose }) => {
           return;
         }
         await dispatch(resetPassword(email));
-
-        // Hide the modal and show the success toast
-        onClose(); // Close the modal
+        onClose();
         Toast.show({
           type: "success",
           position: "top",
@@ -87,7 +82,6 @@ const AuthModal = ({ visible, onClose }) => {
         });
       }
     } catch (error) {
-      // Show error toast on failure
       Toast.show({
         type: "error",
         position: "top",
@@ -200,12 +194,19 @@ const AuthModal = ({ visible, onClose }) => {
       transparent={true}
       onRequestClose={onClose}
     >
-      <View style={styles.modalBackground}>
+      <KeyboardAvoidingView
+        style={styles.modalBackground}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={80}
+      >
         <View style={styles.modalContainer}>
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
             <Ionicons name="close-circle-outline" size={32} color="#c6a02d" />
           </TouchableOpacity>
-          <View style={styles.formContainer}>
+          <ScrollView
+            contentContainerStyle={styles.formContainer}
+            keyboardShouldPersistTaps="handled"
+          >
             <Text style={styles.modalTitle}>
               {authMode === "login"
                 ? "Login"
@@ -214,9 +215,9 @@ const AuthModal = ({ visible, onClose }) => {
                 : "Reset Password"}
             </Text>
             {renderForm()}
-          </View>
+          </ScrollView>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 };
@@ -227,11 +228,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.5)",
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
   },
   modalContainer: {
     backgroundColor: "white",
@@ -239,9 +235,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     width: "85%",
     maxWidth: 400,
-    height: "50%",
-    justifyContent: "center",
-    alignItems: "center",
+    maxHeight: "90%",
   },
   closeButton: {
     position: "absolute",
@@ -254,6 +248,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 15,
     textAlign: "center",
+    marginTop: 40,
   },
   input: {
     height: 40,
@@ -270,10 +265,9 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   formContainer: {
+    paddingHorizontal: 10,
+    paddingBottom: 40,
     alignItems: "center",
-    justifyContent: "center",
-    flex: 1,
-    width: "100%",
   },
   authButton: {
     backgroundColor: "#c6a02d",

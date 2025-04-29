@@ -1,4 +1,3 @@
-// components/AdminDashboard.js
 import React, { useState } from "react";
 import {
   View,
@@ -7,14 +6,18 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
+  Modal,
+  FlatList,
 } from "react-native";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addJob } from "../redux/actions/jobActions";
 import { v4 as uuidv4 } from "uuid";
 import Toast from "react-native-toast-message";
 
 const AdminDashboard = () => {
   const dispatch = useDispatch();
+  const jobs = useSelector((state) => Object.values(state.job.jobs));
+  const [modalVisible, setModalVisible] = useState(false);
 
   const [form, setForm] = useState({
     title: "",
@@ -74,45 +77,116 @@ const AdminDashboard = () => {
       skillsAndExperience: "",
       perksAndBenefits: "",
     });
+
+    setModalVisible(false);
   };
 
+  const fieldLabels = {
+    title: "Job Title",
+    category: "Category",
+    image: "Image URL",
+    description: "Job Description",
+    yearsOfExperience: "Years of Experience",
+    location: "Location",
+    keyResponsibilities: "Key Responsibilities (comma-separated)",
+    skillsAndExperience: "Skills and Experience (comma-separated)",
+    perksAndBenefits: "Perks and Benefits (comma-separated)",
+  };
+
+  const isCommaField = (field) =>
+    ["keyResponsibilities", "skillsAndExperience", "perksAndBenefits"].includes(
+      field
+    );
+
+  const renderJobItem = ({ item }) => (
+    <View style={styles.jobCard}>
+      <Text style={styles.jobTitle}>{item.title}</Text>
+      <Text>
+        {item.category} | {item.location}
+      </Text>
+      <Text style={{ fontSize: 12, color: "gray" }}>
+        Posted: {item.postedDate}
+      </Text>
+    </View>
+  );
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Admin: Post a New Job</Text>
+    <View style={{ flex: 1 }}>
+      <Text style={styles.dashboardTitle}>Admin Dashboard</Text>
 
-      {[
-        "title",
-        "category",
-        "image",
-        "description",
-        "yearsOfExperience",
-        "location",
-        "keyResponsibilities",
-        "skillsAndExperience",
-        "perksAndBenefits",
-      ].map((field) => (
-        <TextInput
-          key={field}
-          placeholder={field
-            .replace(/([A-Z])/g, " $1")
-            .replace(/^./, (str) => str.toUpperCase())}
-          style={styles.input}
-          value={form[field]}
-          onChangeText={(text) => handleChange(field, text)}
-        />
-      ))}
-
-      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-        <Text style={styles.buttonText}>Post Job</Text>
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => setModalVisible(true)}
+      >
+        <Text style={styles.addButtonText}>+ Add New Job</Text>
       </TouchableOpacity>
-    </ScrollView>
+
+      <FlatList
+        data={jobs}
+        keyExtractor={(item) => item.id}
+        renderItem={renderJobItem}
+        contentContainerStyle={{ padding: 20 }}
+      />
+
+      <Modal visible={modalVisible} animationType="slide">
+        <ScrollView contentContainerStyle={styles.modalContent}>
+          <Text style={styles.title}>Add New Job</Text>
+
+          {Object.keys(form).map((field) => (
+            <View key={field} style={styles.inputGroup}>
+              <TextInput
+                placeholder={fieldLabels[field]}
+                style={styles.input}
+                value={form[field]}
+                onChangeText={(text) => handleChange(field, text)}
+                multiline={field === "description"}
+              />
+              {isCommaField(field) && (
+                <Text style={styles.helperText}>
+                  Separate multiple values with commas.
+                </Text>
+              )}
+            </View>
+          ))}
+
+          <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+            <Text style={styles.buttonText}>Post Job</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.button, { backgroundColor: "#aaa", marginTop: 10 }]}
+            onPress={() => setModalVisible(false)}
+          >
+            <Text style={styles.buttonText}>Cancel</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </Modal>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  dashboardTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginTop: 20,
+    textAlign: "center",
+  },
+  addButton: {
+    backgroundColor: "#c6a02d",
+    padding: 12,
+    borderRadius: 5,
+    margin: 20,
+    alignItems: "center",
+  },
+  addButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  modalContent: {
     padding: 20,
-    paddingBottom: 100,
+    paddingBottom: 60,
   },
   title: {
     fontSize: 20,
@@ -120,23 +194,42 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
   },
+  inputGroup: {
+    marginBottom: 10,
+  },
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
     padding: 10,
-    marginBottom: 10,
     borderRadius: 5,
+  },
+  helperText: {
+    fontSize: 12,
+    color: "gray",
+    marginTop: 5,
   },
   button: {
     backgroundColor: "#c6a02d",
     padding: 15,
     borderRadius: 5,
     alignItems: "center",
-    marginTop: 10,
+    marginTop: 20,
   },
   buttonText: {
     color: "#fff",
     fontWeight: "bold",
+  },
+  jobCard: {
+    backgroundColor: "#f9f9f9",
+    padding: 15,
+    borderRadius: 8,
+    marginBottom: 12,
+    elevation: 2,
+  },
+  jobTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 4,
   },
 });
 
