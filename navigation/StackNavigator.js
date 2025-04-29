@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import HomeScreen from "../components/HomeScreen";
 import JobListScreen from "../components/JobListScreen";
 import JobDetails from "../components/JobDetails"; // Import JobDetails component
+import AdminDashboard from "../components/AdminDashboard";
 
 const Stack = createNativeStackNavigator();
 
@@ -23,6 +24,11 @@ const StackNavigator = () => {
         name="JobDetails"
         component={JobDetails}
         options={{ title: "Back" }} // Customize header title for JobDetails screen
+      />
+      <Stack.Screen
+        name="Admin"
+        component={AdminDashboard}
+        options={{ title: "Admin Dashboard" }}
       />
     </Stack.Navigator>
   );

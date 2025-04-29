@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useNavigation } from "@react-navigation/native";
+
 import {
   View,
   Text,
@@ -23,76 +25,78 @@ const AuthModal = ({ visible, onClose }) => {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const dispatch = useDispatch();
+  const navigation = useNavigation(); // ⬅ Add this
 
-const handleAuthAction = async () => {
-  try {
-    if (authMode === "login") {
-      if (!email.trim() || !password.trim()) {
-        alert("Please fill in both email and password.");
-        return;
+  const handleAuthAction = async () => {
+    try {
+      if (authMode === "login") {
+        if (!email.trim() || !password.trim()) {
+          alert("Please fill in both email and password.");
+          return;
+        }
+        await dispatch(loginUser(email, password));
+        console.log("Login successful");
+
+        // Hide the modal and show the success toast
+        onClose(); // Close the modal
+        Toast.show({
+          type: "success",
+          position: "top",
+          text1: "Login Successful!",
+          text2: "Welcome back!",
+          visibilityTime: 3000, // Toast will be visible for 3 seconds
+        });
+        if (email.toLowerCase() === "admin@gmail.com") {
+          navigation.navigate("Admin");
+        }
+      } else if (authMode === "register") {
+        if (!email.trim() || !password.trim() || !confirmPassword.trim()) {
+          alert("Please fill in all fields.");
+          return;
+        }
+        if (password !== confirmPassword) {
+          alert("Passwords do not match.");
+          return;
+        }
+        await dispatch(registerUser(email, password));
+
+        // Hide the modal and show the success toast
+        onClose(); // Close the modal
+        Toast.show({
+          type: "success",
+          position: "top",
+          text1: "Registration Successful!",
+          text2: "You can now log in.",
+          visibilityTime: 3000,
+        });
+      } else if (authMode === "reset") {
+        if (!email.trim()) {
+          alert("Please enter your email.");
+          return;
+        }
+        await dispatch(resetPassword(email));
+
+        // Hide the modal and show the success toast
+        onClose(); // Close the modal
+        Toast.show({
+          type: "success",
+          position: "top",
+          text1: "Password Reset!",
+          text2: "Please check your email.",
+          visibilityTime: 3000,
+        });
       }
-      await dispatch(loginUser(email, password));
-      console.log("Login successful");
-
-      // Hide the modal and show the success toast
-      onClose(); // Close the modal
+    } catch (error) {
+      // Show error toast on failure
       Toast.show({
-        type: "success",
+        type: "error",
         position: "top",
-        text1: "Login Successful!",
-        text2: "Welcome back!",
-        visibilityTime: 3000, // Toast will be visible for 3 seconds
-      });
-    } else if (authMode === "register") {
-      if (!email.trim() || !password.trim() || !confirmPassword.trim()) {
-        alert("Please fill in all fields.");
-        return;
-      }
-      if (password !== confirmPassword) {
-        alert("Passwords do not match.");
-        return;
-      }
-      await dispatch(registerUser(email, password));
-
-      // Hide the modal and show the success toast
-      onClose(); // Close the modal
-      Toast.show({
-        type: "success",
-        position: "top",
-        text1: "Registration Successful!",
-        text2: "You can now log in.",
-        visibilityTime: 3000,
-      });
-    } else if (authMode === "reset") {
-      if (!email.trim()) {
-        alert("Please enter your email.");
-        return;
-      }
-      await dispatch(resetPassword(email));
-
-      // Hide the modal and show the success toast
-      onClose(); // Close the modal
-      Toast.show({
-        type: "success",
-        position: "top",
-        text1: "Password Reset!",
-        text2: "Please check your email.",
+        text1: "Error!",
+        text2: error.message || "Something went wrong.",
         visibilityTime: 3000,
       });
     }
-  } catch (error) {
-    // Show error toast on failure
-    Toast.show({
-      type: "error",
-      position: "top",
-      text1: "Error!",
-      text2: error.message || "Something went wrong.",
-      visibilityTime: 3000,
-    });
-  }
-};
-
-
+  };
 
   const renderForm = () => {
     switch (authMode) {
