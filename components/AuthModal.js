@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigation } from "@react-navigation/native";
 import {
   View,
@@ -12,7 +12,7 @@ import {
   Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Toast from "react-native-toast-message";
 import {
   loginUser,
@@ -29,6 +29,19 @@ const AuthModal = ({ visible, onClose }) => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
+  const currentUser = useSelector((state) => state.auth.currentUser);
+
+  // Effect hook to handle navigation after login
+  useEffect(() => {
+    if (currentUser) {
+      if (currentUser.role === "admin") {
+        navigation.navigate("Admin");
+      } else {
+        navigation.navigate("Home"); // or some default route
+      }
+    }
+  }, [currentUser, navigation]);
+
   const handleAuthAction = async () => {
     try {
       if (authMode === "login") {
@@ -36,7 +49,7 @@ const AuthModal = ({ visible, onClose }) => {
           alert("Please fill in both email and password.");
           return;
         }
-        await dispatch(loginUser(email, password));
+        await dispatch(loginUser(email, password)); // Dispatch login
         onClose();
         Toast.show({
           type: "success",
@@ -45,9 +58,6 @@ const AuthModal = ({ visible, onClose }) => {
           text2: "Welcome back!",
           visibilityTime: 3000,
         });
-        if (email.toLowerCase() === "admin@gmail.com") {
-          navigation.navigate("Admin");
-        }
       } else if (authMode === "register") {
         if (!email.trim() || !password.trim() || !confirmPassword.trim()) {
           alert("Please fill in all fields.");
