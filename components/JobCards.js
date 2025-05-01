@@ -20,12 +20,12 @@ const JobCards = () => {
 
   // Log the jobs fetched from the Redux store
   useEffect(() => {
-    console.log("Fetched Jobs: ", jobs); // Log all the jobs whenever they change
+   
   }, [jobs]);
 
   // Log the current job index
   useEffect(() => {
-    console.log("Current Job Index: ", currentJobIndex);
+   
   }, [currentJobIndex]);
 
   // Handle previous button click

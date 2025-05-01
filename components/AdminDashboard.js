@@ -8,11 +8,15 @@ import {
   TouchableOpacity,
   Modal,
   FlatList,
+  SafeAreaView,
+  StatusBar,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { addJob } from "../redux/actions/jobActions";
 import { v4 as uuidv4 } from "uuid";
 import Toast from "react-native-toast-message";
+import NavBar from "./NavBar";
+import Footer from "./Footer";
 
 const AdminDashboard = () => {
   const dispatch = useDispatch();
@@ -111,22 +115,28 @@ const AdminDashboard = () => {
   );
 
   return (
-    <View style={{ flex: 1 }}>
-      <Text style={styles.dashboardTitle}>Admin Dashboard</Text>
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="dark-content" backgroundColor="#f4f4f4" />
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <NavBar />
+        <Text style={styles.dashboardTitle}>Admin Dashboard</Text>
 
-      <TouchableOpacity
-        style={styles.addButton}
-        onPress={() => setModalVisible(true)}
-      >
-        <Text style={styles.addButtonText}>+ Add New Job</Text>
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => setModalVisible(true)}
+        >
+          <Text style={styles.addButtonText}>+ Add New Job</Text>
+        </TouchableOpacity>
 
-      <FlatList
-        data={jobs}
-        keyExtractor={(item) => item.id}
-        renderItem={renderJobItem}
-        contentContainerStyle={{ padding: 20 }}
-      />
+        <FlatList
+          data={jobs}
+          keyExtractor={(item) => item.id}
+          renderItem={renderJobItem}
+          contentContainerStyle={{ padding: 20 }}
+        />
+
+        <Footer />
+      </ScrollView>
 
       <Modal visible={modalVisible} animationType="slide">
         <ScrollView contentContainerStyle={styles.modalContent}>
@@ -161,11 +171,18 @@ const AdminDashboard = () => {
           </TouchableOpacity>
         </ScrollView>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#f4f4f4",
+  },
+  scrollContainer: {
+    flexGrow: 1,
+  },
   dashboardTitle: {
     fontSize: 24,
     fontWeight: "bold",
