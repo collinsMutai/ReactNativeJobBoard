@@ -5,12 +5,10 @@ import {
   RESET_PASSWORD,
 } from "./authActionTypes";
 
-import { saveToken, deleteToken } from "../../utils/secureStore";
-import { useSelector, useDispatch } from "react-redux";
+import { saveToken, deleteToken } from "../../utils/secureStore"; // Update path and function names
 
 const API_URL = "http://192.168.100.7:5000/api/auth"; // Replace with your deployed backend if needed
 
-// Login User Action
 // Login User Action
 export const loginUser = (email, password) => {
   return async (dispatch) => {
@@ -25,8 +23,8 @@ export const loginUser = (email, password) => {
 
       if (!res.ok) throw new Error(data.message || "Login failed");
 
-      // ✅ Save the token
-      // await saveToken(data.token);
+      // ✅ Save the token securely using Keychain
+      await saveToken(data.token);
 
       // Dispatch the login action
       dispatch({
@@ -34,14 +32,13 @@ export const loginUser = (email, password) => {
         payload: data.user, // user: { id, email, role }
       });
 
-      return data; // Allow post-login handling (e.g., navigation)
+      return data;
     } catch (error) {
       console.error("Error logging in:", error);
       throw error;
     }
   };
 };
-
 
 // Register User Action
 export const registerUser = (email, password) => async (dispatch) => {
@@ -56,14 +53,15 @@ export const registerUser = (email, password) => async (dispatch) => {
 
     if (!res.ok) throw new Error(data.message || "Registration failed");
 
-   
+    // Optionally store token here too if backend sends it on registration
+    // await saveJWT(data.token);
 
     dispatch({
       type: REGISTER_USER,
-      payload: data.user, // Assuming `data.user` contains the user object
+      payload: data.user,
     });
 
-    return data; // Optionally return the data if needed
+    return data;
   } catch (error) {
     console.error("Error registering:", error);
     throw error;
@@ -96,7 +94,14 @@ export const resetPassword = (email) => async (dispatch) => {
 };
 
 // Logout User Action
+// Logout User Action
 export const logoutUser = () => async (dispatch) => {
-  // await deleteToken(); 
-  dispatch({ type: LOGOUT_USER }); // Dispatch logout action
+  try {
+    // Delete token from Keychain
+    await deleteToken(); 
+
+    dispatch({ type: LOGOUT_USER });
+  } catch (error) {
+    console.error("Error during logout:", error);
+  }
 };

@@ -45,10 +45,15 @@ const NavBar = () => {
 
   const handleLogout = () => {
     dispatch(logoutUser());
-     toggleModal(); // optional: close modal or menu if needed
-     navigation.navigate("Home"); 
+    toggleModal(); // optional: close modal or menu if needed
+    navigation.navigate("Home");
   };
 
+  // This function is used for Post a Job button
+  const handlePostJobPress = () => {
+    toggleMenu(); // Close menu if it's open
+    navigation.navigate("Home"); // Navigate to Home screen
+  };
 
   const menuHeight = slideAnim.interpolate({
     inputRange: [0, 1],
@@ -104,7 +109,10 @@ const NavBar = () => {
         >
           <Text style={styles.linkText}>Profile</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.postButton}>
+        <TouchableOpacity
+          style={styles.postButton}
+          onPress={handlePostJobPress}
+        >
           <Text style={styles.postButtonText}>Post a Job</Text>
         </TouchableOpacity>
       </Animated.View>
