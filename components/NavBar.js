@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import { logoutUser } from "../redux/actions/authActions"; // adjust path as needed
+
 import {
   View,
   Text,
@@ -38,6 +41,15 @@ const NavBar = () => {
     navigation.navigate(route);
   };
 
+  const dispatch = useDispatch();
+
+  const handleLogout = () => {
+    dispatch(logoutUser());
+     toggleModal(); // optional: close modal or menu if needed
+     navigation.navigate("Home"); 
+  };
+
+
   const menuHeight = slideAnim.interpolate({
     inputRange: [0, 1],
     outputRange: [0, 220],
@@ -49,8 +61,16 @@ const NavBar = () => {
         <Text style={styles.logo}>Job Board</Text>
         <View style={styles.rightIcons}>
           {currentUser && (
-            <Text style={styles.roleText}>Hello, {currentUser.role}</Text>
+            <View style={{ alignItems: "flex-end", marginRight: 8 }}>
+              <Text style={styles.roleText}>Hello, {currentUser.role}</Text>
+              <TouchableOpacity onPress={handleLogout}>
+                <Text style={{ color: "red", fontSize: 13, marginTop: 4 }}>
+                  Logout
+                </Text>
+              </TouchableOpacity>
+            </View>
           )}
+
           <TouchableOpacity onPress={toggleModal}>
             <Ionicons
               name="person-circle-outline"

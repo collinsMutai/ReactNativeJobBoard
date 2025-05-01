@@ -11,6 +11,7 @@ import { useSelector, useDispatch } from "react-redux";
 const API_URL = "http://192.168.100.7:5000/api/auth"; // Replace with your deployed backend if needed
 
 // Login User Action
+// Login User Action
 export const loginUser = (email, password) => {
   return async (dispatch) => {
     try {
@@ -24,19 +25,23 @@ export const loginUser = (email, password) => {
 
       if (!res.ok) throw new Error(data.message || "Login failed");
 
+      // ✅ Save the token
+      // await saveToken(data.token);
+
       // Dispatch the login action
       dispatch({
         type: LOGIN_USER,
-        payload: data.user, // Assuming `data.user` contains the user object
+        payload: data.user, // user: { id, email, role }
       });
 
-      return data; // You can return the data if you want to handle something post-login
+      return data; // Allow post-login handling (e.g., navigation)
     } catch (error) {
       console.error("Error logging in:", error);
-      throw error; // This will allow the caller to handle errors if necessary
+      throw error;
     }
   };
 };
+
 
 // Register User Action
 export const registerUser = (email, password) => async (dispatch) => {
@@ -51,8 +56,7 @@ export const registerUser = (email, password) => async (dispatch) => {
 
     if (!res.ok) throw new Error(data.message || "Registration failed");
 
-    // Optionally save the token and dispatch user data
-    await saveToken(data.token); // You may auto-login after register, if desired
+   
 
     dispatch({
       type: REGISTER_USER,
@@ -93,6 +97,6 @@ export const resetPassword = (email) => async (dispatch) => {
 
 // Logout User Action
 export const logoutUser = () => async (dispatch) => {
-  await deleteToken(); // Remove the token from secure storage
+  // await deleteToken(); 
   dispatch({ type: LOGOUT_USER }); // Dispatch logout action
 };
