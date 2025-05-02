@@ -28,25 +28,78 @@ export const fetchJobs = () => async (dispatch) => {
   }
 };
 
-// Add a job using fetch
-export const addJob = (newJob) => async (dispatch) => {
+export const addJob = (jobData) => async (dispatch) => {
+  console.log("Adding job:", jobData);
   try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newJob),
-    });
-    if (!res.ok) {
-      throw new Error(`Failed to add job, status: ${res.status}`);
+    const formData = new FormData();
+
+    // ✅ Append image only if provided
+    if (jobData.image) {
+      if (
+        jobData.image.startsWith("http") ||
+        jobData.image.startsWith("https")
+      ) {
+        // 🔁 Remote image URL — send as plain string
+        formData.append("imageUrl", jobData.image);
+      } else if (jobData.image.startsWith("data:image")) {
+        // If base64 data URI is passed, send as a string directly
+        formData.append("imageUrl", jobData.image);
+      } else {
+        // 📂 Local file from ImagePicker
+        const fileUri = jobData.image;
+        const fileName = fileUri.split("/").pop() || "job-image.jpg";
+        const fileType = "image/jpeg"; // You can enhance this by detecting mime type
+
+        formData.append("image", {
+          uri: fileUri,
+          name: fileName,
+          type: fileType,
+        });
+      }
     }
-    const data = await res.json();
-    dispatch({ type: ADD_JOB, payload: data });
-  } catch (err) {
-    console.error("❌ Failed to add job:", err.message);
+
+    // ✅ Append all other fields
+    formData.append("title", jobData.title);
+    formData.append("category", jobData.category);
+    formData.append("description", jobData.description);
+    formData.append("postedDate", jobData.postedDate);
+    formData.append("location", jobData.location);
+    formData.append("yearsOfExperience", jobData.yearsOfExperience.toString());
+    formData.append(
+      "keyResponsibilities",
+      JSON.stringify(jobData.keyResponsibilities)
+    );
+    formData.append(
+      "skillsAndExperience",
+      JSON.stringify(jobData.skillsAndExperience)
+    );
+    formData.append(
+      "perksAndBenefits",
+      JSON.stringify(jobData.perksAndBenefits)
+    );
+
+    // ✅ Submit job to backend
+    const response = await fetch(API_URL, {
+      method: "POST",
+      body: formData,
+    });
+
+    const newJob = await response.json();
+
+    if (response.ok) {
+      dispatch({ type: ADD_JOB, payload: newJob });
+    } else {
+      console.error("❌ Failed to add job:", newJob);
+    }
+  } catch (error) {
+    console.error("❌ Error adding job:", error);
   }
 };
+
+
+
+
+
 
 // Update a job using fetch
 export const updateJob = (job) => async (dispatch) => {

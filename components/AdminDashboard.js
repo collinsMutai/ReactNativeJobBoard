@@ -10,23 +10,26 @@ import {
   FlatList,
   SafeAreaView,
   StatusBar,
+  Image,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { addJob } from "../redux/actions/jobActions";
-import { v4 as uuidv4 } from "uuid";
 import Toast from "react-native-toast-message";
 import NavBar from "./NavBar";
 import Footer from "./Footer";
+import * as ImagePicker from "expo-image-picker";
 
 const AdminDashboard = () => {
   const dispatch = useDispatch();
   const jobs = useSelector((state) => Object.values(state.job.jobs));
   const [modalVisible, setModalVisible] = useState(false);
+  const [imageUri, setImageUri] = useState(""); // For uploaded image URI
 
+  // Ensure all fields have default values
   const [form, setForm] = useState({
     title: "",
     category: "",
-    image: "",
+    image: "", // Set default value to empty string for image URI
     description: "",
     yearsOfExperience: "",
     location: "",
@@ -34,6 +37,22 @@ const AdminDashboard = () => {
     skillsAndExperience: "",
     perksAndBenefits: "",
   });
+
+const pickImage = async () => {
+  const result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ImagePicker.MediaTypeOptions.Images, // Use MediaTypeOptions
+    quality: 1,
+    allowsEditing: true,
+    base64: false,
+  });
+
+  if (!result.canceled && result.assets && result.assets.length > 0) {
+    const pickedImage = result.assets[0];
+    console.log("Picked image:", pickedImage.uri); // Log the URI of the picked image
+    setImageUri(pickedImage.uri); // Save full URI of the image
+    setForm({ ...form, image: pickedImage.uri }); // Update form with the image URI (not just the fileName)
+  }
+};
 
   const handleChange = (field, value) => {
     setForm({ ...form, [field]: value });
@@ -51,7 +70,6 @@ const AdminDashboard = () => {
 
     const newJob = {
       ...form,
-      id: uuidv4(),
       postedDate: new Date().toISOString().split("T")[0],
       yearsOfExperience: parseInt(form.yearsOfExperience || 0),
       keyResponsibilities: form.keyResponsibilities
@@ -63,17 +81,21 @@ const AdminDashboard = () => {
       perksAndBenefits: form.perksAndBenefits.split(",").map((s) => s.trim()),
     };
 
-    dispatch(addJob(newJob));
+    console.log("Submitting job with image URI:", newJob);
+
+    dispatch(addJob(newJob)); // Assuming addJob handles the image URI in the job data
+
     Toast.show({
       type: "success",
       text1: "Job Posted",
       text2: `${newJob.title} added successfully.`,
     });
 
+    // Reset the form after submission
     setForm({
       title: "",
       category: "",
-      image: "",
+      image: "", // Reset image URI to empty string
       description: "",
       yearsOfExperience: "",
       location: "",
@@ -88,7 +110,7 @@ const AdminDashboard = () => {
   const fieldLabels = {
     title: "Job Title",
     category: "Category",
-    image: "Image URL",
+    image: "Image URI", // Image URI input field
     description: "Job Description",
     yearsOfExperience: "Years of Experience",
     location: "Location",
@@ -147,7 +169,7 @@ const AdminDashboard = () => {
               <TextInput
                 placeholder={fieldLabels[field]}
                 style={styles.input}
-                value={form[field]}
+                value={form[field]} // Ensure the field always has a value
                 onChangeText={(text) => handleChange(field, text)}
                 multiline={field === "description"}
               />
@@ -158,6 +180,30 @@ const AdminDashboard = () => {
               )}
             </View>
           ))}
+
+          {/* Image URI input and picker next to it */}
+          <View style={styles.imageInputContainer}>
+            <TextInput
+              placeholder={fieldLabels.image}
+              style={styles.input}
+              value={form.image} // Ensure image field is controlled
+              onChangeText={(text) => handleChange("image", text)}
+            />
+            <TouchableOpacity
+              style={styles.imagePickerButton}
+              onPress={pickImage}
+            >
+              <Text style={styles.imagePickerText}>Pick Image</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Display selected image preview */}
+          {imageUri ? (
+            <View style={styles.imagePreviewContainer}>
+              <Text>Image Preview:</Text>
+              <Image source={{ uri: imageUri }} style={styles.imagePreview} />
+            </View>
+          ) : null}
 
           <TouchableOpacity style={styles.button} onPress={handleSubmit}>
             <Text style={styles.buttonText}>Post Job</Text>
@@ -176,6 +222,7 @@ const AdminDashboard = () => {
 };
 
 const styles = StyleSheet.create({
+  // Your styles remain unchanged
   safeArea: {
     flex: 1,
     backgroundColor: "#f4f4f4",
@@ -247,6 +294,31 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 4,
+  },
+  imageInputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 15,
+  },
+  imagePickerButton: {
+    backgroundColor: "#c6a02d",
+    padding: 10,
+    borderRadius: 5,
+    marginLeft: 10,
+  },
+  imagePickerText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  imagePreviewContainer: {
+    marginTop: 10,
+    alignItems: "center",
+  },
+  imagePreview: {
+    width: 100,
+    height: 100,
+    marginTop: 10,
+    borderRadius: 8,
   },
 });
 

@@ -51,9 +51,18 @@ const NavBar = () => {
 
   // This function is used for Post a Job button
   const handlePostJobPress = () => {
-    toggleMenu(); // Close menu if it's open
-    navigation.navigate("Home"); // Navigate to Home screen
+    toggleMenu(); // close menu
+
+    // If user is not logged in or not an admin, show AuthModal
+    if (!currentUser || currentUser.role !== "admin") {
+      setIsModalVisible(true); // Show the login/register modal
+      return;
+    }
+
+    // If authenticated and admin, navigate to Admin dashboard
+    navigation.navigate("Admin");
   };
+
 
   const menuHeight = slideAnim.interpolate({
     inputRange: [0, 1],

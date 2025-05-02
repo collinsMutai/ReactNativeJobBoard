@@ -1,8 +1,24 @@
 const express = require("express");
+const multer = require("multer");
+const path = require("path");
 const Job = require("../models/Job");
+
 const router = express.Router();
 
-// Get all jobs
+// ✅ Multer Storage Setup
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/"); // Make sure this folder exists
+  },
+  filename: function (req, file, cb) {
+    const uniqueName = `${Date.now()}-${file.originalname}`;
+    cb(null, uniqueName);
+  },
+});
+
+const upload = multer({ storage });
+
+// ✅ GET all jobs
 router.get("/", async (req, res) => {
   try {
     const jobs = await Job.find();
@@ -12,22 +28,39 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Create a new job
-router.post("/", async (req, res) => {
-  const job = new Job({
-    title: req.body.title,
-    category: req.body.category,
-    image: req.body.image,
-    description: req.body.description,
-    postedDate: req.body.postedDate,
-    yearsOfExperience: req.body.yearsOfExperience,
-    location: req.body.location,
-    keyResponsibilities: req.body.keyResponsibilities,
-    skillsAndExperience: req.body.skillsAndExperience,
-    perksAndBenefits: req.body.perksAndBenefits,
-  });
+// ✅ POST a new job with optional image upload
+router.post("/", upload.single("image"), async (req, res) => {
+    console.log("REQ FILE:", req.file);
+    console.log("REQ BODY:", req.body);
 
   try {
+    const {
+      title,
+      category,
+      description,
+      postedDate,
+      yearsOfExperience,
+      location,
+      keyResponsibilities,
+      skillsAndExperience,
+      perksAndBenefits,
+    } = req.body;
+
+    const job = new Job({
+      title,
+      category,
+      image: req.file
+        ? `/uploads/${req.file.filename}`
+        : req.body.imageUrl || "",
+      description,
+      postedDate,
+      yearsOfExperience,
+      location,
+      keyResponsibilities: JSON.parse(keyResponsibilities || "[]"),
+      skillsAndExperience: JSON.parse(skillsAndExperience || "[]"),
+      perksAndBenefits: JSON.parse(perksAndBenefits || "[]"),
+    });
+
     const newJob = await job.save();
     res.status(201).json(newJob);
   } catch (error) {
@@ -35,7 +68,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-// Update a job
+// ✅ UPDATE job (no image update here)
 router.put("/:id", async (req, res) => {
   try {
     const updatedJob = await Job.findByIdAndUpdate(req.params.id, req.body, {
@@ -47,7 +80,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-// Delete a job
+// ✅ DELETE job
 router.delete("/:id", async (req, res) => {
   try {
     await Job.findByIdAndDelete(req.params.id);
