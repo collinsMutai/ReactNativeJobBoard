@@ -34,31 +34,21 @@ export const addJob = (jobData) => async (dispatch) => {
     const formData = new FormData();
 
     // ✅ Append image only if provided
-    if (jobData.image) {
-      if (
-        jobData.image.startsWith("http") ||
-        jobData.image.startsWith("https")
-      ) {
-        // 🔁 Remote image URL — send as plain string
-        formData.append("imageUrl", jobData.image);
-      } else if (jobData.image.startsWith("data:image")) {
-        // If base64 data URI is passed, send as a string directly
-        formData.append("imageUrl", jobData.image);
-      } else {
-        // 📂 Local file from ImagePicker
-        const fileUri = jobData.image;
-        const fileName = fileUri.split("/").pop() || "job-image.jpg";
-        const fileType = "image/jpeg"; // You can enhance this by detecting mime type
+   if (jobData.image) {
+     // Assuming the image is a local file selected via the image picker
+     const fileUri = jobData.image;
+     const fileName = fileUri.split("/").pop() || "job-image.jpg"; // Get file name from the URI
+     const fileType = "image/jpeg"; // Define the MIME type (you can enhance this based on the image format)
 
-        formData.append("image", {
-          uri: fileUri,
-          name: fileName,
-          type: fileType,
-        });
-      }
-    }
+     formData.append("image", {
+       uri: fileUri,
+       name: fileName,
+       type: fileType,
+     });
+   }
 
-    // ✅ Append all other fields
+
+    // Append other fields
     formData.append("title", jobData.title);
     formData.append("category", jobData.category);
     formData.append("description", jobData.description);
@@ -78,7 +68,7 @@ export const addJob = (jobData) => async (dispatch) => {
       JSON.stringify(jobData.perksAndBenefits)
     );
 
-    // ✅ Submit job to backend
+    // Submit job to backend
     const response = await fetch(API_URL, {
       method: "POST",
       body: formData,
@@ -96,12 +86,7 @@ export const addJob = (jobData) => async (dispatch) => {
   }
 };
 
-
-
-
-
-
-// Update a job using fetch
+// Update job
 export const updateJob = (job) => async (dispatch) => {
   try {
     const res = await fetch(`${API_URL}/${job.id}`, {
@@ -121,7 +106,7 @@ export const updateJob = (job) => async (dispatch) => {
   }
 };
 
-// Delete a job using fetch
+// Delete a job
 export const deleteJob = (jobId) => async (dispatch) => {
   try {
     const res = await fetch(`${API_URL}/${jobId}`, {

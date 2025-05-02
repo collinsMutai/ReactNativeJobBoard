@@ -8,15 +8,32 @@ const router = express.Router();
 // ✅ Multer Storage Setup
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "uploads/"); // Make sure this folder exists
+    // Store images in 'uploads' folder. Ensure this folder exists.
+    cb(null, "uploads/");
   },
   filename: function (req, file, cb) {
+    // Create a unique file name using the current timestamp and original file name
     const uniqueName = `${Date.now()}-${file.originalname}`;
-    cb(null, uniqueName);
+    cb(null, uniqueName); // Save the file with the unique name
   },
 });
 
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // Limit file size to 5MB
+  fileFilter: function (req, file, cb) {
+    const allowedTypes = /jpeg|jpg|png|gif/;
+    const extname = allowedTypes.test(
+      path.extname(file.originalname).toLowerCase()
+    );
+    const mimeType = allowedTypes.test(file.mimetype);
+    if (extname && mimeType) {
+      return cb(null, true); // Accept the file
+    } else {
+      return cb(new Error("Only image files are allowed"), false); // Reject the file if not an image
+    }
+  },
+});
 
 // ✅ GET all jobs
 router.get("/", async (req, res) => {
@@ -28,10 +45,10 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ✅ POST a new job with optional image upload
+// ✅ POST a new job with optional image upload (local storage)
 router.post("/", upload.single("image"), async (req, res) => {
-    console.log("REQ FILE:", req.file);
-    console.log("REQ BODY:", req.body);
+  console.log("REQ FILE:", req.file); // Log the file details (image uploaded)
+  console.log("REQ BODY:", req.body); // Log the form data (job details)
 
   try {
     const {
@@ -46,12 +63,16 @@ router.post("/", upload.single("image"), async (req, res) => {
       perksAndBenefits,
     } = req.body;
 
+    // Store the image URL (relative path to the uploads folder)
+    const imageUrl = req.file
+      ? `/uploads/${req.file.filename}`
+      : req.body.imageUrl || "";
+
+    // Create a new job entry
     const job = new Job({
       title,
       category,
-      image: req.file
-        ? `/uploads/${req.file.filename}`
-        : req.body.imageUrl || "",
+      image: imageUrl, // Store the relative URL for the uploaded image
       description,
       postedDate,
       yearsOfExperience,
@@ -61,8 +82,9 @@ router.post("/", upload.single("image"), async (req, res) => {
       perksAndBenefits: JSON.parse(perksAndBenefits || "[]"),
     });
 
+    // Save the job to the database
     const newJob = await job.save();
-    res.status(201).json(newJob);
+    res.status(201).json(newJob); // Respond with the newly created job
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

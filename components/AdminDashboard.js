@@ -25,11 +25,11 @@ const AdminDashboard = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [imageUri, setImageUri] = useState(""); // For uploaded image URI
 
-  // Ensure all fields have default values
+  // Form state
   const [form, setForm] = useState({
     title: "",
     category: "",
-    image: "", // Set default value to empty string for image URI
+    image: "", // Default value to empty string for image URI
     description: "",
     yearsOfExperience: "",
     location: "",
@@ -38,21 +38,25 @@ const AdminDashboard = () => {
     perksAndBenefits: "",
   });
 
-const pickImage = async () => {
-  const result = await ImagePicker.launchImageLibraryAsync({
-    mediaTypes: ImagePicker.MediaTypeOptions.Images, // Use MediaTypeOptions
-    quality: 1,
-    allowsEditing: true,
-    base64: false,
-  });
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"], // Image selection
+      aspect: [4, 3],
+      quality: 1,
+      allowsEditing: true,
+      base64: false, // Set to false to avoid base64 encoding
+    });
 
-  if (!result.canceled && result.assets && result.assets.length > 0) {
-    const pickedImage = result.assets[0];
-    console.log("Picked image:", pickedImage.uri); // Log the URI of the picked image
-    setImageUri(pickedImage.uri); // Save full URI of the image
-    setForm({ ...form, image: pickedImage.uri }); // Update form with the image URI (not just the fileName)
-  }
-};
+    console.log("Image picker result:", result); // Log the result of the image picker
+    
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const pickedImage = result.assets[0];
+      console.log("Picked image:", pickedImage.uri); // Log the URI of the picked image
+      setImageUri(pickedImage.uri); // Save full URI of the image
+      setForm({ ...form, image: pickedImage.uri }); // Update form with the image URI
+    }
+  };
 
   const handleChange = (field, value) => {
     setForm({ ...form, [field]: value });
@@ -91,7 +95,7 @@ const pickImage = async () => {
       text2: `${newJob.title} added successfully.`,
     });
 
-    // Reset the form after submission
+    // Reset form
     setForm({
       title: "",
       category: "",
@@ -110,7 +114,7 @@ const pickImage = async () => {
   const fieldLabels = {
     title: "Job Title",
     category: "Category",
-    image: "Image URI", // Image URI input field
+    image: "Image URI",
     description: "Job Description",
     yearsOfExperience: "Years of Experience",
     location: "Location",
@@ -222,7 +226,6 @@ const pickImage = async () => {
 };
 
 const styles = StyleSheet.create({
-  // Your styles remain unchanged
   safeArea: {
     flex: 1,
     backgroundColor: "#f4f4f4",
