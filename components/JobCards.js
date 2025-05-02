@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux"; // Use useDispatch to dispatch actions
+import { fetchJobs } from "../redux/actions/jobActions"; // Import the fetchJobs action
 import {
   ScrollView,
   View,
@@ -6,54 +8,52 @@ import {
   TouchableOpacity,
   Text,
 } from "react-native";
-import { useSelector } from "react-redux"; // Import useSelector to access Redux store
-import JobCard from "./JobCard"; // Import the JobCard component
-import { Ionicons } from "@expo/vector-icons"; // Import Ionicons for chevron icons
-import { useNavigation } from "@react-navigation/native"; // Import navigation hook
+import JobCard from "./JobCard";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
 const JobCards = () => {
-  // Fetch jobs from the Redux store using useSelector
-  const jobs = useSelector((state) => Object.values(state.job.jobs) || []); // Ensure jobs is always an array
-  const navigation = useNavigation(); // Get the navigation hook
-
+  const dispatch = useDispatch(); // Initialize dispatch from Redux
+  const jobs = useSelector((state) => Object.values(state.job.jobs) || []); // Access jobs from Redux state
+  const navigation = useNavigation(); // Use navigation hook
   const [currentJobIndex, setCurrentJobIndex] = useState(0);
 
-  // Log the jobs fetched from the Redux store
+  // Fetch jobs when the component mounts
   useEffect(() => {
-   
-  }, [jobs]);
+    console.log("Fetching jobs...");
+    dispatch(fetchJobs()); // Dispatch the fetchJobs action
+  }, [dispatch]);
 
-  // Log the current job index
   useEffect(() => {
-   
-  }, [currentJobIndex]);
+    console.log("Jobs loaded:", jobs); // Log the jobs after they are loaded
+  }, [jobs]); // This will run when `jobs` in the store is updated
 
-  // Handle previous button click
   const handlePrev = () => {
     if (currentJobIndex > 0) {
-      setCurrentJobIndex(currentJobIndex - 3); // Show the previous set of 3 jobs
+      setCurrentJobIndex(currentJobIndex - 3); // Show previous set of jobs
     }
   };
 
-  // Handle next button click
   const handleNext = () => {
-    if (currentJobIndex < jobs.length - 3) {
-      setCurrentJobIndex(currentJobIndex + 3); // Show the next set of 3 jobs
+    if (currentJobIndex + 3 < jobs.length) {
+      setCurrentJobIndex(currentJobIndex + 3); // Show next set of jobs
     }
   };
+
+  const isPrevDisabled = currentJobIndex === 0;
+  const isNextDisabled = currentJobIndex + 3 >= jobs.length;
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Featured Jobs</Text>
 
       <ScrollView contentContainerStyle={styles.cardContainer}>
-        {/* Render each job card individually */}
+        {/* Slice jobs to show a subset based on current index */}
         {jobs.slice(currentJobIndex, currentJobIndex + 3).map((job) => (
-          <JobCard key={job.id} job={job} />
+          <JobCard key={job._id} job={job} />
         ))}
 
         <View style={styles.navButtonsContainer}>
-          {/* "View All Jobs" Button */}
           <TouchableOpacity
             style={styles.viewAllButton}
             onPress={() => navigation.navigate("Jobs")}
@@ -61,26 +61,19 @@ const JobCards = () => {
             <Text style={styles.viewAllButtonText}>View All Jobs</Text>
           </TouchableOpacity>
 
-          {/* Navigation buttons (Prev and Next) */}
           <View style={styles.navButtons}>
-            <TouchableOpacity
-              onPress={handlePrev}
-              disabled={currentJobIndex === 0}
-            >
+            <TouchableOpacity onPress={handlePrev} disabled={isPrevDisabled}>
               <Ionicons
                 name="chevron-back-outline"
                 size={30}
-                color={currentJobIndex === 0 ? "#ccc" : "#c6a02d"}
+                color={isPrevDisabled ? "#ccc" : "#c6a02d"}
               />
             </TouchableOpacity>
-            <TouchableOpacity
-              onPress={handleNext}
-              disabled={currentJobIndex >= jobs.length - 3}
-            >
+            <TouchableOpacity onPress={handleNext} disabled={isNextDisabled}>
               <Ionicons
                 name="chevron-forward-outline"
                 size={30}
-                color={currentJobIndex >= jobs.length - 3 ? "#ccc" : "#c6a02d"}
+                color={isNextDisabled ? "#ccc" : "#c6a02d"}
               />
             </TouchableOpacity>
           </View>
@@ -107,9 +100,9 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
   },
   navButtonsContainer: {
-    flexDirection: "row", // Align items in a row
-    justifyContent: "space-between", // Space between the "View All Jobs" and the prev/next buttons
-    width: "100%", // Make sure the container takes up full width
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
     marginTop: 12,
     paddingHorizontal: 16,
   },
@@ -127,7 +120,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   navButtons: {
-    flexDirection: "row", // Align buttons in a row (Prev and Next)
+    flexDirection: "row",
     alignItems: "center",
   },
 });
