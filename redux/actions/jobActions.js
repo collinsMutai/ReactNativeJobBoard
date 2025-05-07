@@ -88,8 +88,9 @@ export const addJob = (jobData) => async (dispatch) => {
 
 // Update job
 export const updateJob = (job) => async (dispatch) => {
+  console.log("🔄 Updating job in API:", job._id);
   try {
-    const res = await fetch(`${API_URL}/${job.id}`, {
+    const res = await fetch(`${API_URL}/${job._id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

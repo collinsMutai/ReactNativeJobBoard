@@ -90,17 +90,37 @@ router.post("/", upload.single("image"), async (req, res) => {
   }
 });
 
-// ✅ UPDATE job (no image update here)
 router.put("/:id", async (req, res) => {
+  console.log("PUT /:id body:", req.body);
+
   try {
-    const updatedJob = await Job.findByIdAndUpdate(req.params.id, req.body, {
+    const body = { ...req.body };
+
+    // ✅ Ensure arrays are properly parsed if sent as strings
+    ["keyResponsibilities", "skillsAndExperience", "perksAndBenefits"].forEach(
+      (field) => {
+        if (typeof body[field] === "string") {
+          try {
+            body[field] = JSON.parse(body[field]);
+          } catch (e) {
+            console.warn(`Invalid JSON for field ${field}:`, body[field]);
+            body[field] = [];
+          }
+        }
+      }
+    );
+
+    const updatedJob = await Job.findByIdAndUpdate(req.params.id, body, {
       new: true,
     });
+
     res.status(200).json(updatedJob);
   } catch (error) {
+    console.error("❌ Update Error:", error.message);
     res.status(400).json({ message: error.message });
   }
 });
+
 
 // ✅ DELETE job
 router.delete("/:id", async (req, res) => {

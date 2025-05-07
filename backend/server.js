@@ -20,14 +20,18 @@ app.use(
   })
 );
 
+// ✅ Parse JSON with a larger size limit (e.g., 50mb)
+app.use(express.json({ limit: "50mb" })); // Increase to 50MB
+app.use(express.urlencoded({ limit: "50mb", extended: true })); // For URL-encoded forms, if needed
+
+
 // ✅ Serve uploaded images as static files
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// ✅ Register job routes BEFORE body parser (to allow file uploads)
+// ✅ Register job routes AFTER JSON/body parsing (allows file uploads in jobRoutes)
 app.use("/api/jobs", jobRoutes);
 
-// ✅ Parse JSON for non-file routes (like auth)
-app.use(express.json());
+// ✅ Register authentication routes
 app.use("/api/auth", authRoutes);
 
 // ✅ Connect to MongoDB
