@@ -7,10 +7,13 @@ import {
   ScrollView,
   StyleSheet,
 } from "react-native";
+import { useSelector } from "react-redux";
 import emailjs from "emailjs-com";
 import Constants from "expo-constants";
 
 const JobDetails = () => {
+  const selectedJob = useSelector((state) => state.job.selectedJob);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -27,7 +30,6 @@ const JobDetails = () => {
       return;
     }
 
-    // Access environment variables stored in app.json via expo-constants
     const serviceID = Constants.manifest.extra.EMAILJS_SERVICE_ID;
     const templateID = Constants.manifest.extra.EMAILJS_TEMPLATE_ID;
     const publicKey = Constants.manifest.extra.EMAILJS_PUBLIC_KEY;
@@ -36,85 +38,96 @@ const JobDetails = () => {
       user_name: formData.name,
       user_email: formData.email,
       cover_letter: formData.coverLetter,
+      job_title: selectedJob?.title || "Unknown Job",
     };
 
     emailjs.send(serviceID, templateID, templateParams, publicKey).then(
       (result) => {
-        console.log("Email sent successfully:", result.text);
         alert("Your application has been submitted successfully!");
-        setFormData({ name: "", email: "", coverLetter: "" }); // Reset form
+        setFormData({ name: "", email: "", coverLetter: "" });
       },
       (error) => {
-        console.error("Error sending email:", error);
         alert("Failed to submit application. Please try again.");
+        console.error("Error sending email:", error);
       }
     );
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Job Details</Text>
-
-      {/* Static Job Details Content */}
-      <Text style={styles.jobTitle}>Frontend Developer</Text>
-      <Text style={styles.jobDescription}>
-        Work with modern frontend frameworks to build engaging user interfaces.
+      <Text style={styles.title}>
+        {selectedJob ? "Job Details" : "No Job Selected"}
       </Text>
-      <Text style={styles.experience}>Years of Experience: 2+</Text>
-      <Text style={styles.location}>Location: New York, NY</Text>
-      <Text style={styles.postedDate}>Date Posted: 2025-04-20</Text>
 
-      {/* Key Responsibilities Section */}
-      <Text style={styles.sectionTitle}>Key Responsibilities:</Text>
-      <Text style={styles.bulletPoint}>
-        • Develop UI components using React
-      </Text>
-      <Text style={styles.bulletPoint}>• Collaborate with backend team</Text>
-      <Text style={styles.bulletPoint}>• Optimize application performance</Text>
+      {selectedJob ? (
+        <>
+          <Text style={styles.jobTitle}>{selectedJob.title}</Text>
+          <Text style={styles.jobDescription}>{selectedJob.description}</Text>
+          <Text style={styles.experience}>
+            Years of Experience: {selectedJob.yearsOfExperience}
+          </Text>
+          <Text style={styles.location}>Location: {selectedJob.location}</Text>
+          <Text style={styles.postedDate}>
+            Date Posted: {selectedJob.postedDate}
+          </Text>
 
-      {/* Skills & Experience Section */}
-      <Text style={styles.sectionTitle}>Skills & Experience:</Text>
-      <Text style={styles.bulletPoint}>• Proficiency in JavaScript, React</Text>
-      <Text style={styles.bulletPoint}>• Understanding of REST APIs</Text>
-      <Text style={styles.bulletPoint}>• 2+ years in frontend development</Text>
+          <Text style={styles.sectionTitle}>Key Responsibilities:</Text>
+          {selectedJob.keyResponsibilities?.map((item, index) => (
+            <Text key={index} style={styles.bulletPoint}>
+              • {item}
+            </Text>
+          ))}
 
-      {/* Perks & Benefits Section */}
-      <Text style={styles.sectionTitle}>Perks & Benefits:</Text>
-      <Text style={styles.bulletPoint}>• Health insurance</Text>
-      <Text style={styles.bulletPoint}>• Remote work options</Text>
-      <Text style={styles.bulletPoint}>• Stock options</Text>
+          <Text style={styles.sectionTitle}>Skills & Experience:</Text>
+          {selectedJob.skillsAndExperience?.map((item, index) => (
+            <Text key={index} style={styles.bulletPoint}>
+              • {item}
+            </Text>
+          ))}
 
-      {/* Job Application Form */}
-      <Text style={styles.formTitle}>Apply for this Job</Text>
+          <Text style={styles.sectionTitle}>Perks & Benefits:</Text>
+          {selectedJob.perksAndBenefits?.map((item, index) => (
+            <Text key={index} style={styles.bulletPoint}>
+              • {item}
+            </Text>
+          ))}
 
-      <TextInput
-        style={styles.input}
-        placeholder="Your Name"
-        value={formData.name}
-        onChangeText={(text) => handleInputChange("name", text)}
-      />
+          <Text style={styles.formTitle}>Apply for this Job</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Your Email"
-        value={formData.email}
-        onChangeText={(text) => handleInputChange("email", text)}
-      />
+          <TextInput
+            style={styles.input}
+            placeholder="Your Name"
+            value={formData.name}
+            onChangeText={(text) => handleInputChange("name", text)}
+          />
 
-      <TextInput
-        style={[styles.input, styles.textArea]}
-        placeholder="Cover Letter"
-        value={formData.coverLetter}
-        onChangeText={(text) => handleInputChange("coverLetter", text)}
-        multiline
-        numberOfLines={4}
-      />
+          <TextInput
+            style={styles.input}
+            placeholder="Your Email"
+            value={formData.email}
+            onChangeText={(text) => handleInputChange("email", text)}
+          />
 
-      <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-        <Text style={styles.submitButtonText}>Submit Application</Text>
-      </TouchableOpacity>
+          <TextInput
+            style={[styles.input, styles.textArea]}
+            placeholder="Cover Letter"
+            value={formData.coverLetter}
+            onChangeText={(text) => handleInputChange("coverLetter", text)}
+            multiline
+            numberOfLines={4}
+          />
 
-      <View style={styles.bottomSpacing}></View>
+          <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+            <Text style={styles.submitButtonText}>Submit Application</Text>
+          </TouchableOpacity>
+
+          <View style={styles.bottomSpacing}></View>
+        </>
+      ) : (
+        <Text style={styles.noJobText}>
+          Please select a job to view details.
+        </Text>
+      )}
     </ScrollView>
   );
 };
@@ -198,6 +211,12 @@ const styles = StyleSheet.create({
   },
   bottomSpacing: {
     height: 40,
+  },
+  noJobText: {
+    fontSize: 18,
+    color: "#888",
+    textAlign: "center",
+    marginTop: 20,
   },
 });
 

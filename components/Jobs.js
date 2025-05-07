@@ -105,7 +105,7 @@ const Jobs = () => {
       {filteredJobs && filteredJobs.length > 0 ? (
         <ScrollView contentContainerStyle={styles.cardContainer}>
           {filteredJobs.map((job) => (
-            <TouchableOpacity key={job.id} onPress={() => handleJobSelect(job)}>
+            <TouchableOpacity key={job._id} onPress={() => handleJobSelect(job)}>
               <JobCard job={job} />
 
               {/* Wrap in array since JobCard expects jobs prop */}

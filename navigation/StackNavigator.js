@@ -49,12 +49,12 @@ const StackNavigator = () => {
       <Stack.Screen
         name="Jobs"
         component={JobListScreen}
-        options={{ title: "Back" }} // Customize header title for Jobs screen
+        options={{ title: "Jobs" }} // Customize header title for Jobs screen
       />
       <Stack.Screen
         name="JobDetails"
         component={JobDetails}
-        options={{ title: "Back" }} // Customize header title for JobDetails screen
+        options={{ title: "Job Details" }} // Customize header title for JobDetails screen
       />
       <Stack.Screen
         name="Admin"

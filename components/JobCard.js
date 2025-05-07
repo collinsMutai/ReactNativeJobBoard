@@ -10,7 +10,7 @@ const JobCard = ({ job }) => {
 
   const handleViewMorePress = () => {
     // Dispatch action to store the selected job in Redux (optional if you're using Redux)
-    dispatch(selectJob(job.id));
+    dispatch(selectJob(job._id));
 
     // Navigate to JobDetails screen
     navigation.navigate("JobDetails");
