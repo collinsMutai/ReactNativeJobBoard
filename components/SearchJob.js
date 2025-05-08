@@ -183,7 +183,7 @@ const SearchJob = () => {
         <View style={{ marginTop: 30 }}>
           <Text style={styles.resultTitle}>Results:</Text>
           {filteredJobs.map((job) => (
-            <JobCard key={job.id} job={job} />
+            <JobCard key={job._id} job={job} />
           ))}
         </View>
       )}

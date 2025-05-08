@@ -54,13 +54,13 @@ const NavBar = () => {
     toggleMenu(); // close menu
 
     // If user is not logged in or not an admin, show AuthModal
-    if (!currentUser || currentUser.role !== "admin") {
-      setIsModalVisible(true); // Show the login/register modal
-      return;
-    }
+    // if (!currentUser || currentUser.role !== "admin") {
+    //   setIsModalVisible(true); 
+    //   return;
+    // }
 
     // If authenticated and admin, navigate to Admin dashboard
-    navigation.navigate("Admin");
+    // navigation.navigate("Admin");
   };
 
 
@@ -114,7 +114,7 @@ const NavBar = () => {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.link}
-          onPress={() => handleLinkPress("Profile")}
+          onPress={() => handleLinkPress("Admin")}
         >
           <Text style={styles.linkText}>Profile</Text>
         </TouchableOpacity>

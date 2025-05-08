@@ -32,15 +32,15 @@ const AuthModal = ({ visible, onClose }) => {
   const currentUser = useSelector((state) => state.auth.currentUser);
 
   // Effect hook to handle navigation after login
-  useEffect(() => {
-    if (currentUser) {
-      if (currentUser.role === "admin") {
-        navigation.navigate("Admin");
-      } else {
-        navigation.navigate("Home"); // or some default route
-      }
-    }
-  }, [currentUser, navigation]);
+  // useEffect(() => {
+  //   if (currentUser) {
+  //     if (currentUser.role === "admin") {
+  //       navigation.navigate("Admin");
+  //     } else {
+  //       navigation.navigate("Home"); 
+  //     }
+  //   }
+  // }, [currentUser, navigation]);
 
   const handleAuthAction = async () => {
     try {
