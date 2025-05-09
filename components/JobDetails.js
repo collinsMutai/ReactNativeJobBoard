@@ -18,6 +18,7 @@ const JobDetails = () => {
     name: "",
     email: "",
     coverLetter: "",
+    cvLink: "", // Added state for CV link
   });
 
   const handleInputChange = (field, value) => {
@@ -25,26 +26,32 @@ const JobDetails = () => {
   };
 
   const handleSubmit = () => {
-    if (!formData.name || !formData.email || !formData.coverLetter) {
+    if (
+      !formData.name ||
+      !formData.email ||
+      !formData.coverLetter ||
+      !formData.cvLink
+    ) {
       alert("Please fill out all fields.");
       return;
     }
 
-    const serviceID = Constants.manifest.extra.EMAILJS_SERVICE_ID;
-    const templateID = Constants.manifest.extra.EMAILJS_TEMPLATE_ID;
-    const publicKey = Constants.manifest.extra.EMAILJS_PUBLIC_KEY;
+    const serviceID = Constants.expoConfig?.extra?.EMAILJS_SERVICE_ID;
+    const templateID = Constants.expoConfig?.extra?.EMAILJS_TEMPLATE_ID;
+    const publicKey = Constants.expoConfig?.extra?.EMAILJS_PUBLIC_KEY;
 
     const templateParams = {
       user_name: formData.name,
       user_email: formData.email,
       cover_letter: formData.coverLetter,
       job_title: selectedJob?.title || "Unknown Job",
+      cv_link: formData.cvLink, // Send CV link instead of file name
     };
 
     emailjs.send(serviceID, templateID, templateParams, publicKey).then(
-      (result) => {
+      () => {
         alert("Your application has been submitted successfully!");
-        setFormData({ name: "", email: "", coverLetter: "" });
+        setFormData({ name: "", email: "", coverLetter: "", cvLink: "" });
       },
       (error) => {
         alert("Failed to submit application. Please try again.");
@@ -115,6 +122,14 @@ const JobDetails = () => {
             onChangeText={(text) => handleInputChange("coverLetter", text)}
             multiline
             numberOfLines={4}
+          />
+
+          {/* Text input for CV link */}
+          <TextInput
+            style={styles.input}
+            placeholder="CV Link (Google Drive/Other)"
+            value={formData.cvLink}
+            onChangeText={(text) => handleInputChange("cvLink", text)}
           />
 
           <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
